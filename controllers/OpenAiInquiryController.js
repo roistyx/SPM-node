@@ -87,7 +87,6 @@ class OpenAiInquiryController {
     console.log(
       'Generating cash flow statement...',
       symbol,
-      req.reportName,
       formattedStartDate,
       formattedEndDate,
       form
@@ -123,10 +122,10 @@ class OpenAiInquiryController {
         ],
       });
 
-      console.log(
-        'report:',
-        response.data.choices[0].message.content
-      );
+      // console.log(
+      //   'report:',
+      //   response.data.choices[0].message.content
+      // );
       return response.data.choices[0].message.content;
 
       // return response;

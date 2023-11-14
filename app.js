@@ -60,6 +60,8 @@ app.get(
 );
 
 app.post('/save-article', StocksController.saveStockNews);
+app.post('/save-report', StocksController.saveFinancialReported);
+
 app.post('/save-user-chat-log', StocksController.saveChatLog);
 app.get(
   '/retrieve-stock-chat-log/:symbol',

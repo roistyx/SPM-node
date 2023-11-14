@@ -25,21 +25,19 @@ class FinnhubController {
     const reportType = req.params.reportType; // bs, ic, cf
     const symbol = req.params.symbol;
 
-    switch (reportType) {
-      case 'bs':
-        req.reportName = 'Balance Sheet';
-        break;
-      case 'ic':
-        req.reportName = 'Income Statement';
-        break;
-      case 'cf':
-        req.reportName = 'Cash Flow Statement';
-        break;
-      default:
-      // Handle default case or error
-    }
-
-    console.log(req.reportName);
+    // switch (reportType) {
+    //   case 'bs':
+    //     req.reportName = 'Balance Sheet';
+    //     break;
+    //   case 'ic':
+    //     req.reportName = 'Income Statement';
+    //     break;
+    //   case 'cf':
+    //     req.reportName = 'Cash Flow Statement';
+    //     break;
+    //   default:
+    //   // Handle default case or error
+    // }
 
     const existingData = await FinancialsDao.findReportBySymbol(
       symbol
@@ -68,21 +66,43 @@ class FinnhubController {
         try {
           req.userRequestedReport = data.data[0].report[reportType];
           req.requestedFinancialReport = data.data[0];
+          const { name: companyName } = req.symbolSearchResult;
+          const { filedDate, symbol, year, quarter } =
+            req.requestedFinancialReport;
           console.log(
-            'req.userRequestedReport',
-            req.userRequestedReport
+            'req.userRequestedReport:',
+            req.requestedFinancialReport
           );
 
-          const response =
-            await OpenAiInquiryController.GenerateCashFlowStatement(
-              req,
-              res
-            );
+          // const response =
+          //   await OpenAiInquiryController.GenerateCashFlowStatement(
+          //     req,
+          //     res
+          //   );
+
+          const response = {
+            reportName: '2022_0',
+            symbol: 'MHK',
+            companyName: 'Mohawk Industries Inc',
+            reportType: 'bs',
+            filedDate: '2023-02-22 00:00:00',
+            financial_report: ['**Hello world**'],
+          };
           const cleanHtml = sanitizeHtml(response, {
             allowedTags: ['h1', 'p', 'strong', 'em', 'br'],
           });
 
-          return res.status(200).json(marked.parse(cleanHtml));
+          const financialReportObject = {
+            reportName: year + '_' + quarter,
+            symbol: symbol,
+            companyName: companyName,
+            reportType: reportType,
+            filedDate: filedDate,
+            financial_report: marked.parse(cleanHtml),
+          };
+
+          // return res.status(200).json(financialReportObject);
+          return res.status(200).json(response);
         } catch (error) {
           console.error('Error fetching financials:', error.message);
           return res
