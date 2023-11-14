@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My Jimp App</title>
+  </head>
+  <body>
+    <h1>OpenAi Token</h1>
+
+    <form id="submitForm">
+      <input
+        type="text"
+        id="tokenInput"
+        accept="image/*"
+        name="image"
+        required />
+      <button type="submit">Save</button>
+    </form>
+
+    <script>
+      const submitForm = document.getElementById("submitForm");
+      const tokenInput = document.getElementById("tokenInput");
+
+      submitForm.addEventListener("submit", sendToken);
+
+      function sendToken(event) {
+        event.preventDefault();
+
+        const token = tokenInput.value;
+
+        localStorage.setItem("token", token);
+
+        confirm("Token saved!");
+        window.location.href = "/index.html";
+      }
+    </script>
+  </body>
+</html>
