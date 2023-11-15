@@ -54,6 +54,19 @@ module.exports = class StockDao {
     return;
   }
 
+  static async getFinancialReportList(symbol) {
+    try {
+      const query = { 'report.symbol': symbol };
+      const documents = await financialReports.find(query).toArray();
+
+      console.log('Matching documents', documents);
+      return documents;
+    } catch (err) {
+      console.log('Error in getFinancialReportList: ', err);
+      return { error: err };
+    }
+  }
+
   static async createUserChatLog(chatLog) {
     console.log('save userChatLog', chatLog);
     return await userChatLog.insertOne({ ...chatLog });

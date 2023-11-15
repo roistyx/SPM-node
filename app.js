@@ -61,6 +61,10 @@ app.get(
 
 app.post('/save-article', StocksController.saveStockNews);
 app.post('/save-report', StocksController.saveFinancialReported);
+app.get(
+  '/financial-report-list/:symbol',
+  StocksController.retrieveFinancialReportList
+);
 
 app.post('/save-user-chat-log', StocksController.saveChatLog);
 app.get(

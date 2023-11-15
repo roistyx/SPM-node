@@ -14,6 +14,18 @@ class StocksController {
     }
   }
 
+  static async retrieveFinancialReportList(req, res) {
+    const symbol = req.params.symbol;
+    // console.log('req.params.symbol', symbol);
+    try {
+      const result = await StockDao.getFinancialReportList(symbol);
+
+      return res.status(200).json(result);
+    } catch (err) {
+      return res.status(500).json('Something went wrong', err);
+    }
+  }
+
   static async retrieveChatLog(req, res) {
     const symbol = req.params.symbol;
     console.log('req.params.symbol', symbol);
