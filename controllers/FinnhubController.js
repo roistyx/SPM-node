@@ -22,22 +22,8 @@ marked.setOptions({
 class FinnhubController {
   static async FinancialsAsReported(req, res) {
     // console.log('req.symbolSearchResult', req.symbolSearchResult);
-    const reportType = req.params.reportType; // bs, ic, cf
+    const reportType = req.params.report_type; // bs, ic, cf
     const symbol = req.params.symbol;
-
-    // switch (reportType) {
-    //   case 'bs':
-    //     req.reportName = 'Balance Sheet';
-    //     break;
-    //   case 'ic':
-    //     req.reportName = 'Income Statement';
-    //     break;
-    //   case 'cf':
-    //     req.reportName = 'Cash Flow Statement';
-    //     break;
-    //   default:
-    //   // Handle default case or error
-    // }
 
     const existingData = await FinancialsDao.findReportBySymbol(
       symbol
@@ -69,40 +55,41 @@ class FinnhubController {
           const { name: companyName } = req.symbolSearchResult;
           const { filedDate, symbol, year, quarter } =
             req.requestedFinancialReport;
-          console.log(
-            'req.userRequestedReport:',
-            req.requestedFinancialReport
-          );
 
-          // const response =
-          //   await OpenAiInquiryController.GenerateCashFlowStatement(
-          //     req,
-          //     res
-          //   );
+          const response =
+            await OpenAiInquiryController.GenerateFinancialStatement(
+              req,
+              res
+            );
 
-          const response = {
-            reportName: '2022_0',
-            symbol: 'MHK',
-            companyName: 'Mohawk Industries Inc',
-            reportType: 'bs',
-            filedDate: '2023-02-22 00:00:00',
-            financial_report: ['**Hello world**'],
-          };
+          // const response = {
+          //   reportName: '2024_0',
+          //   symbol: 'WMT',
+          //   companyName: 'Walmart',
+          //   reportType: 'bs',
+          //   filedDate: '2023-02-22 00:00:00',
+          //   financial_report: ['**Hello world**'],
+          // };
           const cleanHtml = sanitizeHtml(response, {
             allowedTags: ['h1', 'p', 'strong', 'em', 'br'],
           });
 
           const financialReportObject = {
-            reportName: year + '_' + quarter,
+            report_name: year + '_' + quarter,
             symbol: symbol,
-            companyName: companyName,
-            reportType: reportType,
-            filedDate: filedDate,
+            company_name: companyName,
+            report_type: reportType,
+            filed_date: filedDate,
             financial_report: marked.parse(cleanHtml),
           };
 
-          // return res.status(200).json(financialReportObject);
-          return res.status(200).json(response);
+          console.log(
+            'financialReportObject',
+            financialReportObject.financial_report
+          );
+
+          return res.status(200).json(financialReportObject);
+          // return res.status(200).json(response);
         } catch (error) {
           console.error('Error fetching financials:', error.message);
           return res

@@ -2,6 +2,7 @@ const finnhub = require('finnhub');
 
 async function getSymbolSearch(req, res, next) {
   const symbol = req.params.symbol;
+  console.log('symbol', symbol);
   const api_key =
     finnhub.ApiClient.instance.authentications['api_key'];
   api_key.apiKey = process.env.FINHUB_API_KEY;

@@ -53,16 +53,20 @@ app.get(
 );
 
 app.get(
-  '/stock-financials/:reportType/:symbol',
-
+  '/stock-financials/:report_type/:symbol',
   getSymbolSearch,
   FinnhubController.FinancialsAsReported
 );
 
+// app.get('/financial-report-list/:symbol/:report-type', (req, res) => {
+//   console.log('req.params', req.params);
+//   res.status(200).json({ message: 'success' });
+// });
+
 app.post('/save-article', StocksController.saveStockNews);
 app.post('/save-report', StocksController.saveFinancialReported);
 app.get(
-  '/financial-report-list/:symbol',
+  '/financial-report-list/:report_type/:symbol',
   StocksController.retrieveFinancialReportList
 );
 
@@ -71,10 +75,10 @@ app.get(
   '/retrieve-stock-chat-log/:symbol',
   StocksController.retrieveChatLog
 );
-app.post(
-  '/generate-statement/:symbol',
-  OpenAiInquiryController.GenerateCashFlowStatement
-);
+// app.post(
+//   '/generate-statement/:symbol',
+//   OpenAiInquiryController.GenerateCashFlowStatement
+// );
 
 // app.use(OpenAiPromptController.PromptLine);
 

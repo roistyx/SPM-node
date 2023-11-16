@@ -2,11 +2,13 @@ const StockDao = require('../models/StockNewsDao.js');
 
 class StocksController {
   static async saveFinancialReported(req, res) {
-    console.log('req.body', req.body);
+    // console.log('req.body', req.body);
+    const { report_type } = req.body.report;
+    console.log('req.body', req.body.report);
 
     try {
       const result = await StockDao.createFinancialReportEntry(
-        req.body
+        req.body.report
       );
       res.status(200).json(result);
     } catch (err) {
@@ -16,9 +18,14 @@ class StocksController {
 
   static async retrieveFinancialReportList(req, res) {
     const symbol = req.params.symbol;
-    // console.log('req.params.symbol', symbol);
+    const reportType = req.params.report_type;
+
     try {
-      const result = await StockDao.getFinancialReportList(symbol);
+      const result = await StockDao.getFinancialReportList(
+        symbol,
+        reportType
+      );
+      console.log('Stock Controller', result);
 
       return res.status(200).json(result);
     } catch (err) {
@@ -28,7 +35,7 @@ class StocksController {
 
   static async retrieveChatLog(req, res) {
     const symbol = req.params.symbol;
-    console.log('req.params.symbol', symbol);
+    // console.log('req.params.symbol', symbol);
     try {
       const result = await StockDao.getStockChatLog(symbol);
 

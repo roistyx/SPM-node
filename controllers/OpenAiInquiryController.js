@@ -60,7 +60,7 @@ class OpenAiInquiryController {
       console.error('OpenAI Error:', error.message);
     }
   }
-  static async GenerateCashFlowStatement(req, res) {
+  static async GenerateFinancialStatement(req, res) {
     const { symbol, reportType } = req.params;
     const { startDate, endDate, form } = req.requestedFinancialReport;
     const formattedStartDate = format(
@@ -85,7 +85,7 @@ class OpenAiInquiryController {
       // Handle default case or error
     }
     console.log(
-      'Generating cash flow statement...',
+      'OpenAI Generating financial statement...',
       symbol,
       formattedStartDate,
       formattedEndDate,
@@ -96,7 +96,6 @@ class OpenAiInquiryController {
     });
     try {
       const openai = new OpenAIApi(configuration);
-      // console.log(req.body);
       let statement = req.userRequestedReport;
       const { name: companyName } = req.symbolSearchResult;
 

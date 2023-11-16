@@ -47,6 +47,8 @@ module.exports = class StockDao {
   }
 
   static async createFinancialReportEntry(reportData) {
+    // console.log('saveFinancialReported', reportData);
+    const {} = reportData;
     const response = await financialReports.insertOne({
       ...reportData,
     });
@@ -54,12 +56,12 @@ module.exports = class StockDao {
     return;
   }
 
-  static async getFinancialReportList(symbol) {
+  static async getFinancialReportList(symbol, reportType) {
     try {
-      const query = { 'report.symbol': symbol };
+      const query = { report_type: reportType, symbol: symbol };
       const documents = await financialReports.find(query).toArray();
 
-      console.log('Matching documents', documents);
+      console.log('Matching documents', symbol);
       return documents;
     } catch (err) {
       console.log('Error in getFinancialReportList: ', err);
