@@ -61,54 +61,62 @@ class OpenAiInquiryController {
     }
   }
   static async GenerateFinancialStatement(req, res) {
-    const { symbol, reportType } = req.params;
-    const { startDate, endDate, form } = req.requestedFinancialReport;
-    const formattedStartDate = format(
-      parseISO(startDate),
-      'MMMM d, yyyy'
-    );
-    const formattedEndDate = format(
-      parseISO(endDate),
-      'MMMM d, yyyy'
-    );
-    switch (reportType) {
-      case 'bs':
-        req.reportName = 'Balance Sheet';
-        break;
-      case 'ic':
-        req.reportName = 'Income Statement';
-        break;
-      case 'cf':
-        req.reportName = 'Cash Flow Statement';
-        break;
-      default:
-      // Handle default case or error
-    }
-    console.log(
-      'OpenAI Generating financial statement...',
-      symbol,
-      formattedStartDate,
-      formattedEndDate,
-      form
-    );
     const configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY,
     });
     try {
-      const openai = new OpenAIApi(configuration);
-      let statement = req.userRequestedReport;
-      const { name: companyName } = req.symbolSearchResult;
+      const { symbol } = req.params;
+      const reportType = req.params.report_type; // bs, ic, cf
+      let statement = req.requestedFinancialReport.report['ic'];
 
-      const formatCurrency = (value) => {
-        return new Intl.NumberFormat('en-US', {
-          style: 'currency',
-          currency: 'USD',
-        }).format(value);
-      };
+      const { startDate, endDate, form } =
+        req.requestedFinancialReport;
+      const formattedStartDate = format(
+        parseISO(startDate),
+        'MMMM d, yyyy'
+      );
+      const formattedEndDate = format(
+        parseISO(endDate),
+        'MMMM d, yyyy'
+      );
+      switch (reportType) {
+        case 'bs':
+          req.reportName = 'Balance Sheet';
+          break;
+        case 'ic':
+          req.reportName = 'Income Statement';
+          break;
+        case 'cf':
+          req.reportName = 'Cash Flow Statement';
+          break;
+        default:
+        // Handle default case or error
+      }
+      console.log(
+        'OpenAI Generating financial statement...',
+        symbol,
+        req.requestedFinancialReport,
+        req.reportName
+      );
+      const openai = new OpenAIApi(configuration);
+
+      const { name: companyName } = req.symbolSearchResult;
+      // console.log('companyName', companyName);
+
+      // const formatCurrency = (value) => {
+      //   return new Intl.NumberFormat('en-US', {
+      //     style: 'currency',
+      //     currency: 'USD',
+      //   }).format(value);
+      // };
+
+      // console.log('statement', statement);
 
       let transformedStatement = statement
-        .map((item) => `${item.label}: ${formatCurrency(item.value)}`)
+        .map((item) => `${item.label}: ${item.value}`)
         .join(', ');
+
+      console.log('transformedStatement', transformedStatement);
 
       const response = await openai.createChatCompletion({
         model: 'gpt-4-1106-preview',
@@ -116,20 +124,23 @@ class OpenAiInquiryController {
           {
             role: 'user',
             // content: `Create and display ${companyName}'s ${req.reportName} in a tabular format, utilizing the provided data, while adhering to Generally Accepted Accounting Principles (GAAP): ${transformedStatement}`,
-            content: `Generate and showcase ${companyName}'s annual ${req.reportName} for the period starting ${formattedStartDate}, through ${formattedEndDate}. Present the information in a structured table format using the provided data and ensure compliance with Generally Accepted Accounting Principles (GAAP): ${transformedStatement}`,
+            content: `Generate and showcase ${companyName}'s annual ${req.reportName} in US Dollars for the period starting ${formattedStartDate}, through ${formattedEndDate}. Present the information in a structured table format using the provided data and ensure compliance with Generally Accepted Accounting Principles (GAAP): ${transformedStatement}`,
           },
         ],
       });
 
-      // console.log(
-      //   'report:',
-      //   response.data.choices[0].message.content
-      // );
+      console.log(
+        'report:',
+        response.data.choices[0].message.content
+      );
       return response.data.choices[0].message.content;
 
-      // return response;
+      // return 'response';
     } catch (error) {
       console.error('OpenAI Error:', error.message);
+      return res
+        .status(500)
+        .json({ error: 'Error getting ' + req.reportName });
     }
   }
 }

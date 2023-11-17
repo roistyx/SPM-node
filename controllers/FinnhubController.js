@@ -24,6 +24,7 @@ class FinnhubController {
     // console.log('req.symbolSearchResult', req.symbolSearchResult);
     const reportType = req.params.report_type; // bs, ic, cf
     const symbol = req.params.symbol;
+    console.log('reportType', reportType);
 
     const existingData = await FinancialsDao.findReportBySymbol(
       symbol
@@ -56,7 +57,7 @@ class FinnhubController {
           const { filedDate, symbol, year, quarter } =
             req.requestedFinancialReport;
 
-          const response =
+          const response = // needs error hand
             await OpenAiInquiryController.GenerateFinancialStatement(
               req,
               res
@@ -70,6 +71,10 @@ class FinnhubController {
           //   filedDate: '2023-02-22 00:00:00',
           //   financial_report: ['**Hello world**'],
           // };
+          // console.log(
+          //   'req.requestedFinancialReport',
+          //   req.requestedFinancialReport
+          // );
           const cleanHtml = sanitizeHtml(response, {
             allowedTags: ['h1', 'p', 'strong', 'em', 'br'],
           });
@@ -83,10 +88,11 @@ class FinnhubController {
             financial_report: marked.parse(cleanHtml),
           };
 
-          console.log(
-            'financialReportObject',
-            financialReportObject.financial_report
-          );
+          // console.log(
+          //   'financialReportObject',
+          //   financialReportObject.financial_report
+          // );
+          financialReportObject.userRequestedReport;
 
           return res.status(200).json(financialReportObject);
           // return res.status(200).json(response);
