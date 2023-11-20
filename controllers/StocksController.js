@@ -19,13 +19,14 @@ class StocksController {
   static async retrieveFinancialReportList(req, res) {
     const symbol = req.params.symbol;
     const reportType = req.params.report_type;
+    console.log('Stock controller', symbol, reportType);
 
     try {
       const result = await StockDao.getFinancialReportList(
         symbol,
         reportType
       );
-      console.log('Stock Controller', result);
+      // console.log('Stock Controller', result);
 
       return res.status(200).json(result);
     } catch (err) {

@@ -24,7 +24,9 @@ class FinnhubController {
     // console.log('req.symbolSearchResult', req.symbolSearchResult);
     const reportType = req.params.report_type; // bs, ic, cf
     const symbol = req.params.symbol;
-    console.log('reportType', reportType);
+    const { start_date, end_date, quarter } = req.params;
+
+    console.log('reportType', start_date, end_date, quarter);
 
     const existingData = await FinancialsDao.findReportBySymbol(
       symbol
@@ -41,7 +43,13 @@ class FinnhubController {
     const finnhubClient = new finnhub.DefaultApi();
 
     finnhubClient.financialsReported(
-      { symbol: symbol },
+      {
+        symbol: symbol,
+        freq: 'annual',
+        from: '2019-01-01',
+        to: '2020-12-31',
+        // freq: 'quarterly',
+      },
       async (error, data) => {
         if (error) {
           console.error('Error fetching financials:', error.message);
@@ -51,17 +59,17 @@ class FinnhubController {
         }
 
         try {
-          req.userRequestedReport = data.data[0].report[reportType];
+          const reportFeedback = data.data[0].report[reportType];
           req.requestedFinancialReport = data.data[0];
           const { name: companyName } = req.symbolSearchResult;
           const { filedDate, symbol, year, quarter } =
             req.requestedFinancialReport;
 
-          const response = // needs error hand
-            await OpenAiInquiryController.GenerateFinancialStatement(
-              req,
-              res
-            );
+          // const response = // needs error hand
+          //   await OpenAiInquiryController.GenerateFinancialStatement(
+          //     req,
+          //     res
+          //   );
 
           // const response = {
           //   reportName: '2024_0',
@@ -92,7 +100,8 @@ class FinnhubController {
           //   'financialReportObject',
           //   financialReportObject.financial_report
           // );
-          financialReportObject.userRequestedReport;
+          financialReportObject.reportFeedback;
+          console.log('reportFeedback', reportFeedback);
 
           return res.status(200).json(financialReportObject);
           // return res.status(200).json(response);

@@ -52,18 +52,18 @@ app.get(
   GetQuotesController.getPolygonStockData
 );
 
-app.get(
-  '/stock-financials/:report_type/:symbol',
-  getSymbolSearch,
-  FinnhubController.FinancialsAsReported
-);
-
 // app.get('/financial-report-list/:symbol/:report-type', (req, res) => {
 //   console.log('req.params', req.params);
 //   res.status(200).json({ message: 'success' });
 // });
 
 app.post('/save-article', StocksController.saveStockNews);
+
+app.get(
+  '/stock-financials/:report_type/:symbol/:start_date/:end_date/:quarter',
+  getSymbolSearch,
+  FinnhubController.FinancialsAsReported
+);
 app.post('/save-report', StocksController.saveFinancialReported);
 app.get(
   '/financial-report-list/:report_type/:symbol',

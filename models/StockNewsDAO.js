@@ -57,11 +57,13 @@ module.exports = class StockDao {
   }
 
   static async getFinancialReportList(symbol, reportType) {
+    // console.log('getFinancialReportList', symbol, reportType);
     try {
-      const query = { report_type: reportType, symbol: symbol };
+      const query = { symbol: symbol };
       const documents = await financialReports.find(query).toArray();
 
-      console.log('Matching documents', symbol);
+      console.log('Matching documents', documents.length);
+
       return documents;
     } catch (err) {
       console.log('Error in getFinancialReportList: ', err);
