@@ -14,6 +14,7 @@ const FinnhubController = require('./controllers/FinnhubController');
 const getSymbolSearch = require('./middlewares/symbolSearchMiddleware');
 const dateValidatorMiddleware = require('./middlewares/dateFormatMiddleware');
 const convertToUppercaseMiddleware = require('./middlewares/convertUppercaseMiddleware');
+const validateParams = require('./middlewares/validateReportParamsMiddleware');
 const { InitDB } = require('./models/init.js');
 const { InitDBAtlas } = require('./models/initAtlas.js');
 const bodyParser = require('body-parser');
@@ -61,6 +62,7 @@ app.post('/save-article', StocksController.saveStockNews);
 
 app.get(
   '/stock-financials/:report_type/:symbol/:start_date/:end_date/:quarter',
+  validateParams,
   getSymbolSearch,
   FinnhubController.FinancialsAsReported
 );

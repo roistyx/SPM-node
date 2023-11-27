@@ -32,10 +32,10 @@ class FinnhubController {
       symbol
     );
 
-    if (existingData && existingData.data) {
-      console.log('Data retrieved from MongoDB.');
-      return res.status(200).json(existingData.data);
-    }
+    // if (existingData && existingData.data) {
+    //   console.log('Data retrieved from MongoDB.');
+    //   return res.status(200).json(existingData.data);
+    // }
 
     const api_key =
       finnhub.ApiClient.instance.authentications['api_key'];
@@ -45,10 +45,10 @@ class FinnhubController {
     finnhubClient.financialsReported(
       {
         symbol: symbol,
-        freq: 'annual',
-        from: '2019-01-01',
-        to: '2020-12-31',
-        // freq: 'quarterly',
+        freq: quarter === '0' ? 'annual' : 'quarterly',
+        from: start_date,
+        to: end_date,
+        // freq: 'annual',
       },
       async (error, data) => {
         if (error) {
@@ -71,14 +71,14 @@ class FinnhubController {
           //     res
           //   );
 
-          // const response = {
-          //   reportName: '2024_0',
-          //   symbol: 'WMT',
-          //   companyName: 'Walmart',
-          //   reportType: 'bs',
-          //   filedDate: '2023-02-22 00:00:00',
-          //   financial_report: ['**Hello world**'],
-          // };
+          const response = {
+            // reportName: '2024_0',
+            // symbol: 'PFE',
+            // companyName: 'Walmart',
+            // reportType: 'bs',
+            // filedDate: '2023-02-22 00:00:00',
+            financial_report: data.data, // 0 is Q3, 1 is Q2, 2 is Q1, 3 is nothing
+          };
           // console.log(
           //   'req.requestedFinancialReport',
           //   req.requestedFinancialReport
@@ -101,10 +101,10 @@ class FinnhubController {
           //   financialReportObject.financial_report
           // );
           financialReportObject.reportFeedback;
-          console.log('reportFeedback', reportFeedback);
+          // console.log('reportFeedback', reportFeedback);
 
-          return res.status(200).json(financialReportObject);
-          // return res.status(200).json(response);
+          // return res.status(200).json(financialReportObject);
+          return res.status(200).json(response);
         } catch (error) {
           console.error('Error fetching financials:', error.message);
           return res
