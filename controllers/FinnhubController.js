@@ -21,12 +21,30 @@ marked.setOptions({
 
 class FinnhubController {
   static async FinancialsAsReported(req, res) {
-    // console.log('req.symbolSearchResult', req.symbolSearchResult);
     const reportType = req.params.report_type; // bs, ic, cf
     const symbol = req.params.symbol;
     const { start_date, end_date, quarter } = req.params;
+    console.log(
+      'params',
+      reportType,
+      symbol,
+      start_date,
+      end_date,
+      quarter
+    );
 
-    console.log('reportType', start_date, end_date, quarter);
+    const mapQuarterToFrequency = () => {
+      switch (quarter) {
+        case '3':
+          return '0';
+        case '2':
+          return '1';
+        case '1':
+          return '2';
+        default:
+          return '0'; // Adjust this default value as per your requirements
+      }
+    };
 
     const existingData = await FinancialsDao.findReportBySymbol(
       symbol
@@ -45,7 +63,7 @@ class FinnhubController {
     finnhubClient.financialsReported(
       {
         symbol: symbol,
-        freq: quarter === '0' ? 'annual' : 'quarterly',
+        freq: quarter == 0 ? 'annual' : mapQuarterToFrequency(),
         from: start_date,
         to: end_date,
         // freq: 'annual',
@@ -59,30 +77,26 @@ class FinnhubController {
         }
 
         try {
-          const reportFeedback = data.data[0].report[reportType];
-          req.requestedFinancialReport = data.data[0];
+          if (data.data.length == 0) {
+            return res.status(200).json({
+              message: 'No data found for this symbol.',
+            });
+          }
+
+          req.requestedFinancialReport =
+            data.data[quarter == 0 ? 0 : mapQuarterToFrequency()];
           const { name: companyName } = req.symbolSearchResult;
-          const { filedDate, symbol, year, quarter } =
-            req.requestedFinancialReport;
+          const { filedDate, year } = req.requestedFinancialReport;
 
-          // const response = // needs error hand
-          //   await OpenAiInquiryController.GenerateFinancialStatement(
-          //     req,
-          //     res
-          //   );
+          const response = // needs error hand
+            await OpenAiInquiryController.GenerateFinancialStatement(
+              req,
+              res,
+              reportType
+            );
 
-          const response = {
-            // reportName: '2024_0',
-            // symbol: 'PFE',
-            // companyName: 'Walmart',
-            // reportType: 'bs',
-            // filedDate: '2023-02-22 00:00:00',
-            financial_report: data.data, // 0 is Q3, 1 is Q2, 2 is Q1, 3 is nothing
-          };
-          // console.log(
-          //   'req.requestedFinancialReport',
-          //   req.requestedFinancialReport
-          // );
+          // const response = 'test';
+
           const cleanHtml = sanitizeHtml(response, {
             allowedTags: ['h1', 'p', 'strong', 'em', 'br'],
           });
@@ -97,19 +111,23 @@ class FinnhubController {
           };
 
           // console.log(
-          //   'financialReportObject',
-          //   financialReportObject.financial_report
+          //   'data.data[quarter == 0 ? 0 : mapQuarterToFrequency()]',
+          //   data.data[quarter == 0 ? 0 : mapQuarterToFrequency()]
           // );
-          financialReportObject.reportFeedback;
-          // console.log('reportFeedback', reportFeedback);
 
-          // return res.status(200).json(financialReportObject);
-          return res.status(200).json(response);
+          return res.status(200).json(financialReportObject);
+          // return res.status(200).json('response');
         } catch (error) {
-          console.error('Error fetching financials:', error.message);
-          return res
-            .status(500)
-            .json({ error: 'Failed to fetch financials.' });
+          console.error(
+            'Error processing financials:',
+            error.message
+          );
+          // Check if headers are already sent
+          if (!res.headersSent) {
+            return res
+              .status(500)
+              .json({ error: 'Failed to process financials.' });
+          }
         }
       }
     );

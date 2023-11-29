@@ -1,7 +1,7 @@
 StockDao = require('../models/StockNewsDao');
 
 const { Configuration, OpenAIApi } = require('openai');
-const { format, parseISO } = require('date-fns');
+const { format, parseISO, isExists } = require('date-fns');
 
 class OpenAiInquiryController {
   static async SummarizeOpenAi(req, res) {
@@ -61,16 +61,29 @@ class OpenAiInquiryController {
     }
   }
   static async GenerateFinancialStatement(req, res) {
+    const reportType = req.params.report_type; // bs, ic, cf
+    if (!reportType) {
+      console.log('no report type found');
+      return res.status(400).json({ error: 'No report type found' });
+    }
+
+    const { symbol } = req.params;
+    const statement = await req.requestedFinancialReport.report[
+      reportType
+    ];
+    if (statement) {
+      return console.log(reportType);
+    }
+    const { name: companyName } = req.symbolSearchResult;
+
+    const { startDate, endDate, form } = req.requestedFinancialReport;
     const configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY,
     });
-    try {
-      const { symbol } = req.params;
-      const reportType = req.params.report_type; // bs, ic, cf
-      let statement = req.requestedFinancialReport.report['ic'];
 
-      const { startDate, endDate, form } =
-        req.requestedFinancialReport;
+    // console.log('statement', statement);
+
+    try {
       const formattedStartDate = format(
         parseISO(startDate),
         'MMMM d, yyyy'
@@ -92,50 +105,33 @@ class OpenAiInquiryController {
         default:
         // Handle default case or error
       }
-      console.log(
-        'OpenAI Generating financial statement...',
-        symbol,
-        req.requestedFinancialReport,
-        req.reportName
-      );
+
       const openai = new OpenAIApi(configuration);
 
-      const { name: companyName } = req.symbolSearchResult;
-      // console.log('companyName', companyName);
+      // let transformedStatement = statement
+      //   .map((item) => `${item.label}: ${item.value}`)
+      //   .join(', ');
 
-      // const formatCurrency = (value) => {
-      //   return new Intl.NumberFormat('en-US', {
-      //     style: 'currency',
-      //     currency: 'USD',
-      //   }).format(value);
-      // };
+      console.log('req.reportName', req.reportName);
 
-      // console.log('statement', statement);
+      // const response = await openai.createChatCompletion({
+      //   model: 'gpt-4-1106-preview',
+      //   messages: [
+      //     {
+      //       role: 'user',
+      //       // content: `Create and display ${companyName}'s ${req.reportName} in a tabular format, utilizing the provided data, while adhering to Generally Accepted Accounting Principles (GAAP): ${transformedStatement}`,
+      //       content: `Generate and showcase ${companyName}'s annual ${req.reportName} in US Dollars for the period starting ${formattedStartDate}, through ${formattedEndDate}. Present the information in a structured table format using the provided data and ensure compliance with Generally Accepted Accounting Principles (GAAP): ${transformedStatement}`,
+      //     },
+      //   ],
+      // });
 
-      let transformedStatement = statement
-        .map((item) => `${item.label}: ${item.value}`)
-        .join(', ');
+      // console.log(
+      //   'report:',
+      //   response.data.choices[0].message.content
+      // );
+      // return response.data.choices[0].message.content;
 
-      console.log('transformedStatement', transformedStatement);
-
-      const response = await openai.createChatCompletion({
-        model: 'gpt-4-1106-preview',
-        messages: [
-          {
-            role: 'user',
-            // content: `Create and display ${companyName}'s ${req.reportName} in a tabular format, utilizing the provided data, while adhering to Generally Accepted Accounting Principles (GAAP): ${transformedStatement}`,
-            content: `Generate and showcase ${companyName}'s annual ${req.reportName} in US Dollars for the period starting ${formattedStartDate}, through ${formattedEndDate}. Present the information in a structured table format using the provided data and ensure compliance with Generally Accepted Accounting Principles (GAAP): ${transformedStatement}`,
-          },
-        ],
-      });
-
-      console.log(
-        'report:',
-        response.data.choices[0].message.content
-      );
-      return response.data.choices[0].message.content;
-
-      // return 'response';
+      return 'response';
     } catch (error) {
       console.error('OpenAI Error:', error.message);
       return res
