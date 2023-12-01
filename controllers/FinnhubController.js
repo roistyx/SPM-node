@@ -1,6 +1,7 @@
 const finnhub = require('finnhub');
 const FinancialsDao = require('../models/FinancialsDao');
 const OpenAiInquiryController = require('./OpenAiInquiryController');
+const { sendErrorResponse } = require('../helpers/errorUtils');
 const marked = require('marked');
 const sanitizeHtml = require('sanitize-html');
 
@@ -24,14 +25,6 @@ class FinnhubController {
     const reportType = req.params.report_type; // bs, ic, cf
     const symbol = req.params.symbol;
     const { start_date, end_date, quarter } = req.params;
-    console.log(
-      'params',
-      reportType,
-      symbol,
-      start_date,
-      end_date,
-      quarter
-    );
 
     const mapQuarterToFrequency = () => {
       switch (quarter) {
@@ -50,10 +43,10 @@ class FinnhubController {
       symbol
     );
 
-    // if (existingData && existingData.data) {
-    //   console.log('Data retrieved from MongoDB.');
-    //   return res.status(200).json(existingData.data);
-    // }
+    if (existingData && existingData.data) {
+      console.log('Data retrieved from MongoDB.');
+      return res.status(200).json(existingData.data);
+    }
 
     const api_key =
       finnhub.ApiClient.instance.authentications['api_key'];
@@ -63,10 +56,9 @@ class FinnhubController {
     finnhubClient.financialsReported(
       {
         symbol: symbol,
-        freq: quarter == 0 ? 'annual' : mapQuarterToFrequency(),
+        freq: quarter == 0 ? 'annual' : 'quarterly',
         from: start_date,
         to: end_date,
-        // freq: 'annual',
       },
       async (error, data) => {
         if (error) {
@@ -77,43 +69,46 @@ class FinnhubController {
         }
 
         try {
-          if (data.data.length == 0) {
-            return res.status(200).json({
-              message: 'No data found for this symbol.',
-            });
+          if (!data.symbol) {
+            sendErrorResponse(res, 'No data found for this symbol.');
+            return;
+          }
+
+          if (
+            !data.data[quarter == 0 ? 0 : mapQuarterToFrequency()]
+          ) {
+            sendErrorResponse(res, 'No data found for this symbol.');
+            return;
           }
 
           req.requestedFinancialReport =
             data.data[quarter == 0 ? 0 : mapQuarterToFrequency()];
           const { name: companyName } = req.symbolSearchResult;
-          const { filedDate, year } = req.requestedFinancialReport;
+          const { filedDate, year, startDate, endDate } =
+            req.requestedFinancialReport;
 
           const response = // needs error hand
             await OpenAiInquiryController.GenerateFinancialStatement(
               req,
               res,
-              reportType
+              quarter
             );
-
-          // const response = 'test';
 
           const cleanHtml = sanitizeHtml(response, {
             allowedTags: ['h1', 'p', 'strong', 'em', 'br'],
           });
 
           const financialReportObject = {
+            startDate: startDate,
+            endDate: endDate,
             report_name: year + '_' + quarter,
             symbol: symbol,
             company_name: companyName,
+            quarter: quarter,
             report_type: reportType,
             filed_date: filedDate,
             financial_report: marked.parse(cleanHtml),
           };
-
-          // console.log(
-          //   'data.data[quarter == 0 ? 0 : mapQuarterToFrequency()]',
-          //   data.data[quarter == 0 ? 0 : mapQuarterToFrequency()]
-          // );
 
           return res.status(200).json(financialReportObject);
           // return res.status(200).json('response');
@@ -122,11 +117,11 @@ class FinnhubController {
             'Error processing financials:',
             error.message
           );
-          // Check if headers are already sent
           if (!res.headersSent) {
-            return res
-              .status(500)
-              .json({ error: 'Failed to process financials.' });
+            return res.status(500).json({
+              error: 'Failed to process Financials As Reported.',
+              status: 500,
+            });
           }
         }
       }

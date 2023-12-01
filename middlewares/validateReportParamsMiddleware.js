@@ -1,7 +1,14 @@
-const moment = require('moment'); // moment.js for date manipulations
+const moment = require('moment');
 
 const validateParams = (req, res, next) => {
-  const { start_date, end_date, quarter } = req.params;
+  const { start_date, end_date, quarter, report_type } = req.params;
+
+  if (!['cf', 'ic', 'bs'].includes(report_type)) {
+    // console.log('Invalid report_type.', report_type);
+    return res.status(400).json({
+      error: 'Invalid report_type. Allowed values are cf, ic, bs.',
+    });
+  }
 
   const dateFormat = /^\d{4}-\d{2}-\d{2}$/;
   if (!dateFormat.test(start_date) || !dateFormat.test(end_date)) {
