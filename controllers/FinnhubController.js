@@ -25,6 +25,14 @@ class FinnhubController {
     const reportType = req.params.report_type; // bs, ic, cf
     const symbol = req.params.symbol;
     const { start_date, end_date, quarter } = req.params;
+    console.log(
+      'received query for',
+      symbol,
+      start_date,
+      end_date,
+      quarter,
+      reportType
+    );
 
     const mapQuarterToFrequency = () => {
       switch (quarter) {
@@ -60,24 +68,37 @@ class FinnhubController {
         from: start_date,
         to: end_date,
       },
-      async (error, data) => {
+      async (error, data, response) => {
         if (error) {
-          console.error('Error fetching financials:', error.message);
-          return res
-            .status(500)
-            .json({ error: 'Failed to fetch financials.' });
+          console.error(
+            'Error fetching financials in FinhubController:',
+            error.message
+          );
+          sendErrorResponse(res, 500, "Couldn't fetch financials.");
+          return;
         }
+
+        console.log('Finnhub API Response:', response);
+        console.log('Finnhub API Data:', data);
 
         try {
           if (!data.symbol) {
-            sendErrorResponse(res, 'No data found for this symbol.');
+            sendErrorResponse(
+              res,
+              200,
+              'No data found for this symbol.'
+            );
             return;
           }
 
           if (
             !data.data[quarter == 0 ? 0 : mapQuarterToFrequency()]
           ) {
-            sendErrorResponse(res, 'No data found for this symbol.');
+            sendErrorResponse(
+              res,
+              200,
+              'No data found for these dates.'
+            );
             return;
           }
 
