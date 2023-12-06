@@ -1,7 +1,23 @@
 StockDao = require('../models/StockNewsDao');
-
 const { Configuration, OpenAIApi } = require('openai');
 const { format, parseISO, isExists } = require('date-fns');
+const sanitizeHtml = require('sanitize-html');
+const marked = require('marked');
+
+marked.setOptions({
+  renderer: new marked.Renderer(),
+  highlight: function (code, lang) {
+    const hljs = require('highlight.js');
+    const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+    return hljs.highlight(code, { language }).value;
+  },
+  pedantic: false,
+  gfm: true,
+  breaks: false,
+  smartLists: true,
+  smartypants: false,
+  xhtml: false,
+});
 
 class OpenAiInquiryController {
   static async SummarizeOpenAi(req, res) {
@@ -52,14 +68,18 @@ class OpenAiInquiryController {
           },
         ],
       });
-      console.log(response.data.choices[0].message.content);
-      const chatGBTAnswer = response.data.choices[0].message.content;
 
-      return res.status(200).json(chatGBTAnswer);
+      const chatGBTAnswer = response.data.choices[0].message.content;
+      const cleanHtml = sanitizeHtml(chatGBTAnswer, {
+        allowedTags: ['h1', 'p', 'strong', 'em', 'br'],
+      });
+
+      return res.status(200).json(marked.parse(cleanHtml));
     } catch (error) {
       console.error('OpenAI Error:', error.message);
     }
   }
+
   static async GenerateFinancialStatement(req, res, quarter) {
     console.log('Open AI', quarter);
     const reportType = req.params.report_type; // bs, ic, cf
@@ -75,6 +95,7 @@ class OpenAiInquiryController {
     const { name: companyName } = req.symbolSearchResult;
 
     const { startDate, endDate, form } = req.requestedFinancialReport;
+    console.log('form', form);
     const configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY,
     });
@@ -108,28 +129,28 @@ class OpenAiInquiryController {
         .map((item) => `${item.label}: ${item.value}`)
         .join(', ');
 
-      // const response = await openai.createChatCompletion({
-      //   model: 'gpt-4-1106-preview',
-      //   messages: [
-      //     {
-      //       role: 'user',
-      //       // content: `Create and display ${companyName}'s ${req.reportName} in a tabular format, utilizing the provided data, while adhering to Generally Accepted Accounting Principles (GAAP): ${transformedStatement}`,
-      //       content: `Generate and showcase ${companyName}'s ${
-      //         quarter == 0 ? 'annual' : quarter + 'Q'
-      //       } ${
-      //         req.reportName
-      //       } in US Dollars for the period starting ${formattedStartDate}, through ${formattedEndDate}. Present the information in a structured table format using the provided data and ensure compliance with Generally Accepted Accounting Principles (GAAP): ${transformedStatement}`,
-      //     },
-      //   ],
-      // });
+      const response = await openai.createChatCompletion({
+        model: 'gpt-4-1106-preview',
+        messages: [
+          {
+            role: 'user',
+            // content: `Create and display ${companyName}'s ${req.reportName} in a tabular format, utilizing the provided data, while adhering to Generally Accepted Accounting Principles (GAAP): ${transformedStatement}`,
+            content: `Generate and showcase ${companyName}'s ${
+              quarter == 0 ? 'annual' : quarter + 'Q'
+            } ${
+              req.reportName
+            } in US Dollars for the period starting ${formattedStartDate}, through ${formattedEndDate}. Present the information in a structured table format using the provided data and ensure compliance with Generally Accepted Accounting Principles (GAAP): ${transformedStatement}`,
+          },
+        ],
+      });
 
       // console.log(
       //   'report:',
       //   response.data.choices[0].message.content
       // );
-      // return response.data.choices[0].message.content;
+      return response.data.choices[0].message.content;
 
-      return transformedStatement;
+      // return transformedStatement;
     } catch (error) {
       console.error('OpenAI Error:', error.message);
       return res
