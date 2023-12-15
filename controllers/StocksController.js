@@ -34,6 +34,22 @@ class StocksController {
     }
   }
 
+  static async retrieveSavedStocks(req, res) {
+    const symbol = req.symbol;
+    console.log('req.params.symbol', symbol);
+    try {
+      const resultFinancialReportList =
+        await StockDao.getFinancialReportList(symbol);
+      const resultStockChatLog = await StockDao.getStockChatLog(
+        symbol
+      );
+
+      return res.status(200).json(result);
+    } catch (err) {
+      return res.status(500).json('Something went wrong', err);
+    }
+  }
+
   static async retrieveChatLog(req, res) {
     const symbol = req.params.symbol;
     // console.log('req.params.symbol', symbol);
@@ -63,6 +79,18 @@ class StocksController {
       res.status(200).json(result);
     } catch (err) {
       res.status(500).json('Something went wrong', err);
+    }
+  }
+
+  static async retrieveSavedNews(req, res) {
+    const symbol = req.symbol;
+    console.log('req', symbol);
+    try {
+      const result = await StockDao.findNewsBySymbol(symbol);
+
+      return res.status(200).json(result);
+    } catch (err) {
+      return res.status(500).json('Something went wrong', err);
     }
   }
 }

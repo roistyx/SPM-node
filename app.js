@@ -39,6 +39,11 @@ app.post('/extract', extractArticleMiddleware);
 
 app.get('/stock-news/:symbol', GoogleFinanceController.getNews);
 // app.get('/stock-news/:symbol', FinnhubController.getCompanyNews);
+app.get(
+  '/retrieve-saved-news/:symbol',
+  convertToUppercaseMiddleware,
+  StocksController.retrieveSavedNews
+);
 app.post('/summarize', OpenAiInquiryController.SummarizeOpenAi);
 app.post('/chatBot', OpenAiInquiryController.ChatBotOpenAi);
 
@@ -54,11 +59,6 @@ app.get(
   GetQuotesController.getPolygonStockData
 );
 
-// app.get('/financial-report-list/:symbol/:report-type', (req, res) => {
-//   console.log('req.params', req.params);
-//   res.status(200).json({ message: 'success' });
-// });
-
 app.post('/save-article', StocksController.saveStockNews);
 
 app.get(
@@ -71,6 +71,12 @@ app.post('/save-report', StocksController.saveFinancialReported);
 app.get(
   '/financial-report-list/:report_type/:symbol',
   StocksController.retrieveFinancialReportList
+);
+
+app.get(
+  '/retrieve-saved-stocks/:symbol',
+  convertToUppercaseMiddleware,
+  StocksController.retrieveSavedStocks
 );
 
 app.post('/save-user-chat-log', StocksController.saveChatLog);

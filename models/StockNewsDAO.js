@@ -46,6 +46,24 @@ module.exports = class StockDao {
     return await newsCollection.insertOne({ ...newsData });
   }
 
+  static async findNewsBySymbol(symbol) {
+    console.log('findNewsBySymbol', symbol);
+    try {
+      const newsEntry = await newsCollection.findOne({
+        symbol: symbol,
+      });
+      if (!newsEntry) {
+        console.log(`No news entry found for symbol: ${symbol}`);
+        return false;
+      }
+      console.log(`News entry found for symbol: ${symbol}`);
+      return true;
+    } catch (err) {
+      console.error(`Error in findNewsBySymbol: ${err}`);
+      return { error: err };
+    }
+  }
+
   static async createFinancialReportEntry(reportData) {
     // console.log('saveFinancialReported', reportData);
     const {} = reportData;
@@ -56,7 +74,7 @@ module.exports = class StockDao {
     return;
   }
 
-  static async getFinancialReportList(symbol, reportType) {
+  static async getFinancialReportList(symbol) {
     // console.log('getFinancialReportList', symbol, reportType);
     try {
       const query = { symbol: symbol };
@@ -141,29 +159,6 @@ module.exports = class StockDao {
     }
   }
 
-  static async savePet(userId, petId) {
-    // console.log('userId', userId);
-    // console.log('petId', petId);
-    try {
-      // const updateResponse = await userCollection.updateOne(
-      // 	{ _id: new ObjectId(userId) },
-      // 	{ $push: { pets: petId } }
-      // );
-      const result = await newsCollection.findOneAndUpdate(
-        { _id: new ObjectId(userId) },
-        { $push: { pets: petId } },
-        { returnOriginal: false }
-      );
-      const pets = await this.getUserById(new ObjectId(userId));
-      console.log('Original result?', result);
-
-      return pets;
-    } catch (err) {
-      console.log('Error in savePet: ', err);
-      return { error: err };
-    }
-  }
-
   static async updateUserById(UserId, userData) {
     try {
       const updateResponse = await newsCollection.updateOne(
@@ -177,57 +172,5 @@ module.exports = class StockDao {
     }
   }
 
-  static async deletePet(userId, petId) {
-    console.log('userId', userId);
-    console.log('petId', petId);
-    try {
-      // const updateResponse = await userCollection.updateOne(
-      // 	{ _id: new ObjectId(userId) },
-      // 	{ $push: { pets: petId } }
-      // );
-      const result = await newsCollection.findOneAndUpdate(
-        { _id: new ObjectId(userId) },
-        { $pull: { pets: petId } },
-        { returnOriginal: false }
-      );
-      // return console.log('result', result.value.pets);
-      return result.value.pets;
-      return updateResponse;
-    } catch (err) {
-      console.log('Error in savePet: ', err);
-      return { error: err };
-    }
-  }
-
-  static async getPetSavedList(userId, petId) {
-    console.log('userId', userId);
-    console.log('petId', petId);
-    try {
-    } catch (err) {
-      console.log('Error in savePet: ', err);
-      return { error: err };
-    }
-  }
-
-  static async unSavePets(userId, petId) {
-    console.log('userId', userId);
-    console.log('petId', petId);
-    try {
-      const isExist = await newsCollection.findOne({
-        _id: new ObjectId(userId),
-        pets: petId,
-      });
-      if (!isExist) return console.log('Nothing to unsave');
-      const updatedPetList = await newsCollection.findOneAndUpdate(
-        { _id: new ObjectId(userId) },
-        { $pull: { pets: petId } },
-        { returnOriginal: false }
-      );
-      console.log('updatedPetList', updatedPetList);
-      return updatedPetList;
-    } catch (err) {
-      console.log('Error in deleteSavedPet: ', err);
-      return { error: err };
-    }
-  }
+  static async deleteNewsDocument(userId, petId) {}
 };
