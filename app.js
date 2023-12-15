@@ -39,6 +39,7 @@ app.post('/extract', extractArticleMiddleware);
 
 app.get('/stock-news/:symbol', GoogleFinanceController.getNews);
 // app.get('/stock-news/:symbol', FinnhubController.getCompanyNews);
+
 app.get(
   '/retrieve-saved-news/:symbol',
   convertToUppercaseMiddleware,
@@ -74,8 +75,7 @@ app.get(
 );
 
 app.get(
-  '/retrieve-saved-stocks/:symbol',
-  convertToUppercaseMiddleware,
+  '/retrieve-saved-stocks',
   StocksController.retrieveSavedStocks
 );
 

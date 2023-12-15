@@ -119,55 +119,50 @@ module.exports = class StockDao {
     }
   }
 
-  static async adminInit() {
-    let isAdminInit = '';
-    console.log('Hello world');
-    const user = process.env.ADMIN_EMAIL;
-    const password = process.env.ADMIN_PASSWORD;
-
-    // isAdminInit = await this.getUserByUsername(user);
-    console.log('isAdminInit', isAdminInit);
-    // if (isAdminInit) return;
-
-    const userData = {
-      username: user,
-      password: password,
-      role: 'admin',
-      created_at: new Date(),
-      login_attempts: 0,
-    };
-    console.log('Admin created', userData);
-    return await newsCollection.insertOne({ ...userData });
-  }
-
-  static async getUserByUsername(username) {
-    const userObject = await newsCollection.findOne({ username });
-    // console.log('userObject', userObject);
-    return userObject;
-  }
-
-  static async updateUserById(UserId, userData) {
+  static async findSavedSymbols() {
     try {
-      const updateResponse = await newsCollection.updateOne(
-        { _id: new ObjectId(UserId) },
-        { $set: { ...userData } }
-      );
-      return updateResponse;
-    } catch (err) {
-      console.log('Error in updateUserById: ', err);
-      return { error: err };
-    }
-  }
+      // Using aggregation to get unique symbols from each collection
+      const newsSymbols = await newsCollection
+        .aggregate([
+          { $group: { _id: '$symbol' } },
+          { $project: { _id: 0, symbol: '$_id' } },
+        ])
+        .toArray()
+        .then((docs) => docs.map((doc) => doc.symbol));
 
-  static async updateUserById(UserId, userData) {
-    try {
-      const updateResponse = await newsCollection.updateOne(
-        { _id: new ObjectId(UserId) },
-        { $set: { ...userData } }
-      );
-      return updateResponse;
+      const financialReportSymbols = await financialReports
+        .aggregate([
+          { $group: { _id: '$symbol' } },
+          { $project: { _id: 0, symbol: '$_id' } },
+        ])
+        .toArray()
+        .then((docs) => docs.map((doc) => doc.symbol));
+
+      const chatLogSymbols = await userChatLog
+        .aggregate([
+          { $unwind: '$chatLog' },
+          {
+            $group: {
+              _id: '$chatLog.userDataAndChatLog.userContext.symbol',
+            },
+          },
+          { $project: { _id: 0, symbol: '$_id' } },
+        ])
+        .toArray()
+        .then((docs) => docs.map((doc) => doc.symbol));
+
+      // Combine and remove duplicates
+      const allSymbols = [
+        ...new Set([
+          ...newsSymbols,
+          ...financialReportSymbols,
+          ...chatLogSymbols,
+        ]),
+      ];
+
+      return allSymbols;
     } catch (err) {
-      console.log('Error in updateUserById: ', err);
+      console.error(`Error in findSavedSymbols: ${err}`);
       return { error: err };
     }
   }

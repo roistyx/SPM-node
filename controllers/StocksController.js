@@ -35,14 +35,8 @@ class StocksController {
   }
 
   static async retrieveSavedStocks(req, res) {
-    const symbol = req.symbol;
-    console.log('req.params.symbol', symbol);
     try {
-      const resultFinancialReportList =
-        await StockDao.getFinancialReportList(symbol);
-      const resultStockChatLog = await StockDao.getStockChatLog(
-        symbol
-      );
+      const result = await StockDao.findSavedSymbols();
 
       return res.status(200).json(result);
     } catch (err) {
