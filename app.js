@@ -38,6 +38,7 @@ app.use(express.static('public'));
 app.post('/extract', extractArticleMiddleware);
 
 app.get('/stock-news/:symbol', GoogleFinanceController.getNews);
+// app.get('/stock-news/:symbol', FinnhubController.getCompanyNews);
 app.post('/summarize', OpenAiInquiryController.SummarizeOpenAi);
 app.post('/chatBot', OpenAiInquiryController.ChatBotOpenAi);
 

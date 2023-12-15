@@ -63,7 +63,7 @@ class OpenAiInquiryController {
           {
             role: 'user',
             content:
-              'Respond to this question at an 8th-grade reading level. Include examples if they help to clarify the information.: ' +
+              'Write a summary for a high school senior, using examples from activities like shopping, picking out clothes, or buying groceries. Your summary should end with a list of important points covering recommendations, a description of the business, and an analysis of its specific market segment. ' +
               userQuestion,
           },
         ],

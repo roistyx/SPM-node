@@ -43,7 +43,7 @@ class FinnhubController {
         case '1':
           return '2';
         default:
-          return '0'; // Adjust this default value as per your requirements
+          return '0';
       }
     };
 
@@ -147,6 +147,41 @@ class FinnhubController {
         }
       }
     );
+  }
+
+  static async getCompanyNews(req, res) {
+    console.log('getCompanyNews');
+    try {
+      const api_key =
+        finnhub.ApiClient.instance.authentications['api_key'];
+      api_key.apiKey = process.env.FINHUB_API_KEY;
+      const finnhubClient = new finnhub.DefaultApi();
+
+      finnhubClient.companyNews(
+        'PFE',
+        '2023-01-01',
+        '2023-05-01',
+        async (error, data, response) => {
+          if (error) {
+            console.error(
+              'Error fetching company news in FinnhubController:',
+              error.message
+            );
+            sendErrorResponse(res, 500, "Couldn't fetch news.");
+            return;
+          }
+          console.log('Finnhub API Response:', data);
+          return res.status(200).json(data);
+        }
+      );
+    } catch (error) {
+      console.error(
+        'Error fetching company news in FinnhubController:',
+        error.message
+      );
+      sendErrorResponse(res, 500, "Couldn't fetch news.");
+      return;
+    }
   }
 
   static async getQuote() {}
