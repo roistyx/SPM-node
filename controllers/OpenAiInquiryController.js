@@ -21,8 +21,6 @@ marked.setOptions({
 
 class OpenAiInquiryController {
   static async SummarizeOpenAi(req, res) {
-    // console.log("Summarizing article content...");
-
     const configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY,
     });
@@ -40,12 +38,14 @@ class OpenAiInquiryController {
           },
         ],
       });
-      // console.log(response.data.choices[0].message.content);
       req.body.content = response.data.choices[0].message.content;
+      const summary = response.data.choices[0].message.content;
+      console.log('summary', summary);
 
       return res.status(200).json(req.body);
     } catch (error) {
       console.error('OpenAI Error:', error.message);
+      return;
     }
   }
 

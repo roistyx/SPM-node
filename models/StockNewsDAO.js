@@ -46,23 +46,7 @@ module.exports = class StockDao {
     return await newsCollection.insertOne({ ...newsData });
   }
 
-  static async findNewsBySymbol(symbol) {
-    console.log('findNewsBySymbol', symbol);
-    try {
-      const newsEntry = await newsCollection.findOne({
-        symbol: symbol,
-      });
-      if (!newsEntry) {
-        console.log(`No news entry found for symbol: ${symbol}`);
-        return false;
-      }
-      console.log(`News entry found for symbol: ${symbol}`);
-      return true;
-    } catch (err) {
-      console.error(`Error in findNewsBySymbol: ${err}`);
-      return { error: err };
-    }
-  }
+  static async findSavedSymbols() {}
 
   static async createFinancialReportEntry(reportData) {
     // console.log('saveFinancialReported', reportData);
@@ -121,46 +105,104 @@ module.exports = class StockDao {
 
   static async findSavedSymbols() {
     try {
-      // Using aggregation to get unique symbols from each collection
-      const newsSymbols = await newsCollection
-        .aggregate([
-          { $group: { _id: '$symbol' } },
-          { $project: { _id: 0, symbol: '$_id' } },
-        ])
-        .toArray()
-        .then((docs) => docs.map((doc) => doc.symbol));
-
-      const financialReportSymbols = await financialReports
-        .aggregate([
-          { $group: { _id: '$symbol' } },
-          { $project: { _id: 0, symbol: '$_id' } },
-        ])
-        .toArray()
-        .then((docs) => docs.map((doc) => doc.symbol));
-
-      const chatLogSymbols = await userChatLog
-        .aggregate([
-          { $unwind: '$chatLog' },
-          {
-            $group: {
-              _id: '$chatLog.userDataAndChatLog.userContext.symbol',
+      // Function to aggregate symbols and company names from news and financialReports
+      const aggregateData = async (
+        collection,
+        symbolField,
+        companyNameField
+      ) => {
+        return await collection
+          .aggregate([
+            {
+              $group: {
+                _id: {
+                  symbol: `$${symbolField}`,
+                  companyName: `$${companyNameField}`,
+                },
+                count: { $sum: 1 },
+              },
             },
-          },
-          { $project: { _id: 0, symbol: '$_id' } },
-        ])
-        .toArray()
-        .then((docs) => docs.map((doc) => doc.symbol));
+            {
+              $project: {
+                _id: 0,
+                symbol: '$_id.symbol',
+                companyName: '$_id.companyName',
+                count: 1,
+              },
+            },
+          ])
+          .toArray();
+      };
 
-      // Combine and remove duplicates
-      const allSymbols = [
-        ...new Set([
-          ...newsSymbols,
-          ...financialReportSymbols,
-          ...chatLogSymbols,
-        ]),
+      // Special aggregation for userChatLog to avoid counting duplicates within the same document
+      const aggregateChatLogData = async () => {
+        return await userChatLog
+          .aggregate([
+            { $unwind: '$chatLog' },
+            {
+              $group: {
+                _id: {
+                  symbol:
+                    '$chatLog.userDataAndChatLog.userContext.symbol',
+                  companyName:
+                    '$chatLog.userDataAndChatLog.userContext.company_name',
+                },
+              },
+            },
+            {
+              $group: {
+                _id: '$_id.symbol',
+                companyName: { $first: '$_id.companyName' },
+                count: { $sum: 1 },
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                symbol: '$_id',
+                companyName: 1,
+                count: 1,
+              },
+            },
+          ])
+          .toArray();
+      };
+
+      // Aggregate data from each collection
+      const newsData = await aggregateData(
+        newsCollection,
+        'symbol',
+        'company_name'
+      );
+      const financialReportsData = await aggregateData(
+        financialReports,
+        'symbol',
+        'company_name'
+      );
+      const chatLogData = await aggregateChatLogData();
+
+      // Combine all data
+      const combinedData = [
+        ...newsData,
+        ...financialReportsData,
+        ...chatLogData,
       ];
 
-      return allSymbols;
+      // Summarize the counts
+      const summary = combinedData.reduce(
+        (acc, { symbol, companyName, count }) => {
+          const key = `${symbol}_${companyName}`;
+          if (!acc[key]) {
+            acc[key] = { symbol, companyName, count: 0 };
+          }
+          acc[key].count += count;
+          return acc;
+        },
+        {}
+      );
+
+      // Convert the summary object to an array of objects
+      return Object.values(summary);
     } catch (err) {
       console.error(`Error in findSavedSymbols: ${err}`);
       return { error: err };
