@@ -188,12 +188,22 @@ module.exports = class StockDao {
         ...chatLogData,
       ];
 
-      // Summarize the counts
+      // Summarize the counts for each symbol/company name combination
+
       const summary = combinedData.reduce(
         (acc, { symbol, companyName, count }) => {
-          const key = `${symbol}_${companyName}`;
+          // Normalize the company name (e.g., remove trailing periods)
+          const normalizedCompanyName = companyName
+            .trim()
+            .replace(/\.$/, '');
+
+          const key = `${symbol}_${normalizedCompanyName}`;
           if (!acc[key]) {
-            acc[key] = { symbol, companyName, count: 0 };
+            acc[key] = {
+              symbol,
+              companyName: normalizedCompanyName,
+              count: 0,
+            };
           }
           acc[key].count += count;
           return acc;
