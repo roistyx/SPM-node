@@ -46,7 +46,11 @@ app.get(
   StocksController.retrieveSavedNews
 );
 app.post('/summarize', OpenAiInquiryController.SummarizeOpenAi);
-app.post('/chatBot', OpenAiInquiryController.ChatBotOpenAi);
+app.post(
+  '/chatBot/:symbol',
+  getSymbolSearch,
+  OpenAiInquiryController.ChatBotOpenAi
+);
 
 app.post(
   '/historical',

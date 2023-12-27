@@ -50,6 +50,9 @@ class OpenAiInquiryController {
   }
 
   static async ChatBotOpenAi(req, res) {
+    const { symbol } = req.symbolSearchResult;
+    console.log('ChatBotOpenAi symbol', req.symbolSearchResult);
+
     const configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY,
     });
