@@ -1,1 +1,1 @@
-# strip-markup-and-query-OpenAI
+#SPM Node

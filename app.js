@@ -15,6 +15,7 @@ const getSymbolSearch = require('./middlewares/symbolSearchMiddleware');
 const dateValidatorMiddleware = require('./middlewares/dateFormatMiddleware');
 const convertToUppercaseMiddleware = require('./middlewares/convertUppercaseMiddleware');
 const validateParams = require('./middlewares/validateReportParamsMiddleware');
+const ImageController = require('./controllers/ImageController');
 const { InitDB } = require('./models/init.js');
 const { InitDBAtlas } = require('./models/initAtlas.js');
 const bodyParser = require('body-parser');
@@ -28,9 +29,9 @@ app.use(
   })
 );
 
-// InitDB();
+app.use(express.static(path.join(__dirname, 'public')));
 
-InitDBAtlas();
+// InitDBAtlas();
 
 app.use(express.json());
 app.use(express.static('public'));
@@ -79,6 +80,11 @@ app.get(
 );
 
 app.get(
+  '/background-image/:element/:opacity',
+  ImageController.getBackgroundImage
+);
+
+app.get(
   '/retrieve-saved-stocks',
   StocksController.retrieveSavedStocks
 );
@@ -94,7 +100,7 @@ app.get(
 // );
 
 // app.use(OpenAiPromptController.PromptLine);
-
-app.listen(3100, () => {
-  console.log('Server is running on port 3100');
+const port = process.env.PORT;
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });

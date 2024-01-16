@@ -9,6 +9,7 @@
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "finnhub": "^1.2.17",
+    "jimp": "^0.22.10",
     "main": "/app.js",
     "marked": "^10.0.0",
     "moment": "^2.29.4",
