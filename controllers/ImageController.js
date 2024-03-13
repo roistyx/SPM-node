@@ -1,5 +1,5 @@
-const Jimp = require('jimp');
-const path = require('path');
+const Jimp = require("jimp");
+const path = require("path");
 
 class ImageController {
   static async getBackgroundImage(req, res) {
@@ -11,9 +11,9 @@ class ImageController {
 
     const imagePath = path.join(
       __dirname,
-      '..',
-      'public',
-      'images',
+      "..",
+      "public",
+      "images",
       `${element}`
     );
 
@@ -23,10 +23,10 @@ class ImageController {
 
       const outputFilePath = path.join(
         __dirname,
-        '..',
-        'public',
-        'images',
-        'modified',
+        "..",
+        "public",
+        "images",
+        "modified",
         `${element}`
       );
       await modifiedImage.writeAsync(outputFilePath);
@@ -34,14 +34,12 @@ class ImageController {
       const outputUrl = `/images/modified/${element}`;
 
       res.send({
-        message: 'Image processed successfully',
+        message: "Image processed successfully",
         url: fullUrl + outputUrl,
       });
     } catch (err) {
       console.error(err);
-      res
-        .status(500)
-        .send({ message: 'Error processing image', error: err });
+      res.status(500).send({ message: "Error processing image", error: err });
     }
   }
 }

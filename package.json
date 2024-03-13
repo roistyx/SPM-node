@@ -24,12 +24,12 @@
     "yahoo-finance": "^0.3.8",
     "yahoo-finance2": "^2.4.3"
   },
+  "name": "SPM-Node",
+  "version": "1.0.0",
   "description": "",
   "license": "ISC",
   "main": "/app.js",
-  "name": "my-jimp-app",
   "scripts": {
     "dev": "nodemon app.js"
-  },
-  "version": "1.0.0"
+  }
 }
