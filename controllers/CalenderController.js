@@ -1,5 +1,5 @@
 const dailySlots = {
-  "2024-04-15": [
+  "24-04-2024": [
     { "09:00-09:45": false },
     { "10:00-10:45": false },
     { "11:00-11:45": false },
@@ -9,7 +9,7 @@ const dailySlots = {
     { "15:00-15:45": false },
     { "16:00-16:45": true },
   ],
-  "2024-04-16": [
+  "25-04-2024": [
     { "09:00-09:45": false },
     { "10:00-10:45": false },
     { "11:00-11:45": false },
@@ -19,7 +19,7 @@ const dailySlots = {
     { "15:00-15:45": false },
     { "16:00-16:45": false },
   ],
-  "2024-04-20": [
+  "28-04-2024": [
     { "09:00-09:45": false },
     { "10:00-10:45": false },
     { "11:00-11:45": false },
@@ -29,7 +29,7 @@ const dailySlots = {
     { "15:00-15:45": false },
     { "16:00-16:45": false },
   ],
-  "2024-04-21": [
+  "29-04-2024": [
     { "09:00-09:45": false },
     { "10:00-10:45": false },
     { "11:00-11:45": false },
@@ -39,7 +39,7 @@ const dailySlots = {
     { "15:00-15:45": false },
     { "16:00-16:45": false },
   ],
-  "2024-04-22": [
+  "30-04-2024": [
     { "09:00-09:45": false },
     { "10:00-10:45": false },
     { "11:00-11:45": false },
@@ -49,7 +49,7 @@ const dailySlots = {
     { "15:00-15:45": false },
     { "16:00-16:45": false },
   ],
-  "2024-04-23": [
+  "03-05-2024": [
     { "09:00-09:45": false },
     { "10:00-10:45": false },
     { "11:00-11:45": false },
@@ -59,7 +59,7 @@ const dailySlots = {
     { "15:00-15:45": false },
     { "16:00-16:45": false },
   ],
-  "2024-04-24": [
+  "04-05-2024": [
     { "09:00-09:45": false },
     { "10:00-10:45": false },
     { "11:00-11:45": false },
@@ -69,7 +69,7 @@ const dailySlots = {
     { "15:00-15:45": false },
     { "16:00-16:45": false },
   ],
-  "2024-04-25": [
+  "05-05-2024": [
     { "09:00-09:45": false },
     { "10:00-10:45": false },
     { "11:00-11:45": false },
@@ -79,7 +79,7 @@ const dailySlots = {
     { "15:00-15:45": false },
     { "16:00-16:45": false },
   ],
-  "2024-04-26": [
+  "06-05-2024": [
     { "09:00-09:45": false },
     { "10:00-10:45": false },
     { "11:00-11:45": false },
@@ -89,7 +89,7 @@ const dailySlots = {
     { "15:00-15:45": false },
     { "16:00-16:45": false },
   ],
-  "2024-04-27": [
+  "07-05-2024": [
     { "09:00-09:45": false },
     { "10:00-10:45": false },
     { "11:00-11:45": false },
@@ -99,7 +99,7 @@ const dailySlots = {
     { "15:00-15:45": false },
     { "16:00-16:45": false },
   ],
-  "2024-04-28": [
+  "10-05-2024": [
     { "09:00-09:45": false },
     { "10:00-10:45": false },
     { "11:00-11:45": false },
@@ -109,7 +109,7 @@ const dailySlots = {
     { "15:00-15:45": false },
     { "16:00-16:45": false },
   ],
-  "2024-04-29": [
+  "11-05-2024": [
     { "09:00-09:45": false },
     { "10:00-10:45": false },
     { "11:00-11:45": false },
@@ -119,7 +119,7 @@ const dailySlots = {
     { "15:00-15:45": false },
     { "16:00-16:45": false },
   ],
-  "2024-05-05": [
+  "12-05-2024": [
     { "09:00-09:45": false },
     { "10:00-10:45": false },
     { "11:00-11:45": false },
@@ -131,10 +131,10 @@ const dailySlots = {
   ],
 };
 
-let calendarSchedule = {
+let calendar = {
   2024: {
     // Year level
-    "03": {
+    "04": {
       // Month level, 03 for March
       29: {
         // Day level
@@ -245,7 +245,9 @@ let calendarSchedule = {
           },
         ],
       },
-      31: {
+    },
+    "05": {
+      "01": {
         day: "Sunday",
         timeSlots: [
           {
@@ -298,10 +300,7 @@ let calendarSchedule = {
           },
         ],
       },
-    },
-    "04": {
-      // Month level, 04 for April
-      "01": {
+      "02": {
         day: "Monday",
         timeSlots: [
           {
@@ -354,7 +353,7 @@ let calendarSchedule = {
           },
         ],
       },
-      "02": {
+      "03": {
         day: "Tuesday",
         timeSlots: [
           {
@@ -405,9 +404,56 @@ let calendarSchedule = {
             isBooked: false,
             details: {},
           },
+        ],
+      },
+      "04": {
+        day: "Wednesday",
+        timeSlots: [
           {
-            startTime: "17:00",
-            endTime: "18:00",
+            startTime: "09:00",
+            endTime: "10:00",
+            isBooked: false,
+            details: {},
+          },
+          {
+            startTime: "10:00",
+            endTime: "11:00",
+            isBooked: false,
+            details: {},
+          },
+          {
+            startTime: "11:00",
+            endTime: "12:00",
+            isBooked: false,
+            details: {},
+          },
+          {
+            startTime: "12:00",
+            endTime: "13:00",
+            isBooked: false,
+            details: {},
+          },
+          {
+            startTime: "13:00",
+            endTime: "14:00",
+            isBooked: false,
+            details: {},
+          },
+          {
+            startTime: "14:00",
+            endTime: "15:00",
+            isBooked: false,
+            details: {},
+          },
+          {
+            startTime: "15:00",
+            endTime: "16:00",
+            isBooked: false,
+            details: {},
+          },
+          {
+            startTime: "16:00",
+            endTime: "17:00",
             isBooked: false,
             details: {},
           },
