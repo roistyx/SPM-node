@@ -1,36 +1,36 @@
-require("dotenv").config();
-const express = require("express");
-const cors = require("cors");
-const path = require("path");
-const CalendarController = require("./controllers/CalenderController.js");
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+const CalendarController = require('./controllers/CalenderController.js');
 // const ImageController = require("•/controllers/ImageController");
-// const { InitDB } = require("./models/init.js");
-// const { InitDBAtlas } = require("./models/initAtlas.js");
-const bodyParser = require("body-parser");
+const { InitDBAtlas } = require('./models/initAtlas.js');
+const bodyParser = require('body-parser');
 
 const app = express();
 app.use(bodyParser.json());
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: 'http://localhost:3000',
     credentials: true,
   })
 );
+InitDBAtlas();
 
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // InitDBAtlas();
 
 app.use(express.json());
-app.use(express.static("public"));
+app.use(express.static('public'));
 
 app.get(
-  "/calendar/get-day-appointments/:day",
+  '/calendar/get-day-appointments/:day',
   CalendarController.getEventsByDate
 );
 
 app.get(
-  "/calendar/get-month-appointments/:date",
+  '/calendar/get-month-appointments/:date',
   CalendarController.getEventsByMonth
 );
 

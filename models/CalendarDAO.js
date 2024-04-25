@@ -2,24 +2,19 @@
 const { response } = require('express');
 const { ObjectId } = require('mongodb');
 
-let newsCollection;
-let userChatLog;
-let financialReports;
+let calendar;
 
-module.exports = class StockDao {
+module.exports = class CalendarDAO {
   static async injectDB(connection) {
     if (!connection) return;
 
     try {
-      newsCollection = await connection.collection('news');
-      userChatLog = await connection.collection('chatLog');
-      financialReports = await connection.collection(
-        'financialReports'
-      );
-      console.log('Connected to MongoDB Stocks collection');
+      calendar = await connection.collection('calendar');
+
+      console.log('Connected to MongoDB calendar collection');
     } catch (err) {
       console.log(
-        `Unable to establish a collection handle in StocksNewsDAO: ${err}`
+        `Unable to establish a collection handle in CalendarDAO: ${err}`
       );
     }
   }
@@ -29,7 +24,7 @@ module.exports = class StockDao {
     // return console.log('UserId', UserId);
 
     try {
-      const userObject = await newsCollection.findOne({
+      const userObject = await calendar.findOne({
         _id: new ObjectId(UserId),
       });
       console.log('userObject', userObject);
@@ -43,7 +38,7 @@ module.exports = class StockDao {
 
   static async createNewsEntry(newsData) {
     console.log('saveStockNews', newsData);
-    return await newsCollection.insertOne({ ...newsData });
+    return await calendar.insertOne({ ...newsData });
   }
 
   static async findSavedSymbols() {}
@@ -170,7 +165,7 @@ module.exports = class StockDao {
 
       // Aggregate data from each collection
       const newsData = await aggregateData(
-        newsCollection,
+        calendar,
         'symbol',
         'company_name'
       );
