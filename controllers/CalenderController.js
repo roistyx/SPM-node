@@ -1,3 +1,6 @@
+const CalendarDAO = require('../models/CalendarDAO.js');
+const moment = require('moment-timezone');
+
 const dailySlots = {
   '24-04-2024': [
     { '09:00-09:45': false },
@@ -464,7 +467,7 @@ let calendar = {
 };
 
 class CalendarController {
-  static addAppointmentTime(req, res) {
+  static async addAppointment(req, res) {
     const startTime = new Date('2024-04-24T19:00:00');
     const endTime = new Date('2024-04-24T22:00:00');
 
@@ -478,12 +481,36 @@ class CalendarController {
       let slotEnd = new Date(
         slotStart.getTime() + durationMinutes * 60000
       );
-      slots.push({ startTime: slotStart, endTime: slotEnd });
+
+      const startTimeNY = moment(slotStart)
+        .tz('America/New_York')
+        .format('h:mm A');
+      const endTimeNY = moment(slotEnd)
+        .tz('America/New_York')
+        .format('h:mm A');
+      const dateNY = moment(slotStart)
+        .tz('America/New_York')
+        .format('MMMM D, YYYY');
+
+      slots.push({
+        startTime: slotStart,
+        endTime: slotEnd,
+        isBooked: false,
+        details: {},
+        NewYorkTime: `${startTimeNY} to ${endTimeNY} on ${dateNY}`,
+      });
 
       // Move to next start time considering the overlap
       current = new Date(
         current.getTime() + (durationMinutes - overlapMinutes) * 60000
       );
+    }
+    try {
+      const response = await CalendarDAO.addSlot(slots);
+      console.log(response);
+      res.status(200).json(response);
+    } catch (error) {
+      console.error('Error adding time slots', error);
     }
   }
 

@@ -34,6 +34,11 @@ app.get(
   CalendarController.getEventsByMonth
 );
 
+app.get(
+  '/calendar/add-appointment/:date',
+  CalendarController.addAppointment
+);
+
 const port = process.env.PORT;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
