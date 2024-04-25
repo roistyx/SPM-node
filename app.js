@@ -18,6 +18,7 @@ app.use(
 InitDBAtlas();
 
 app.use(express.static(path.join(__dirname, 'public')));
+// app.use(express.static('public'));
 
 // InitDBAtlas();
 
@@ -35,7 +36,7 @@ app.get(
 );
 
 app.get(
-  '/calendar/add-appointment/:date',
+  '/calendar/add-appointment/:startTime/:endTime/:durationMinutes/:overlapMinutes',
   CalendarController.addAppointment
 );
 

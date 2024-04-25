@@ -468,15 +468,22 @@ let calendar = {
 
 class CalendarController {
   static async addAppointment(req, res) {
-    const startTime = new Date('2024-04-24T19:00:00');
-    const endTime = new Date('2024-04-24T22:00:00');
+    const { startTime, endTime, durationMinutes, overlapMinutes } =
+      req.params;
 
-    // Time slot details
-    const durationMinutes = 30; // Duration of each time slot
-    const overlapMinutes = 15; // Overlap between time slots
+    // console.log(
+    //   `Adding slots from ${UtcStartTime} to ${UtcEndTime} with duration ${durationMinutes} and overlap ${overlapMinutes}`
+    // );
+
+    const UtcStartTime = new Date(startTime);
+    const UtcEndTime = new Date(endTime);
 
     let slots = [];
-    for (let current = new Date(startTime); current < endTime; ) {
+    for (
+      let current = new Date(UtcStartTime);
+      current < UtcEndTime;
+
+    ) {
       let slotStart = new Date(current);
       let slotEnd = new Date(
         slotStart.getTime() + durationMinutes * 60000
