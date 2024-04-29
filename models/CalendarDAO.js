@@ -1,6 +1,6 @@
 // injectDB injects this connection to the database
-const { response } = require('express');
-const { ObjectId } = require('mongodb');
+const { response } = require("express");
+const { ObjectId } = require("mongodb");
 
 let TimeSlots;
 
@@ -9,9 +9,9 @@ module.exports = class CalendarDAO {
     if (!connection) return;
 
     try {
-      TimeSlots = await connection.collection('TimeSlots');
+      TimeSlots = await connection.collection("TimeSlots");
 
-      console.log('Connected to MongoDB TimeSlots collection');
+      console.log("Connected to MongoDB TimeSlots collection");
     } catch (err) {
       console.log(
         `Unable to establish a collection handle in CalendarDAO: ${err}`
@@ -40,7 +40,7 @@ module.exports = class CalendarDAO {
       for (let day = 1; day <= daysInMonth; day++) {
         const formattedDate = `${year}-${(month + 1)
           .toString()
-          .padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+          .padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
         availability[formattedDate] = false;
       }
 
@@ -51,10 +51,10 @@ module.exports = class CalendarDAO {
           slotDate.getUTCMonth() + 1
         )
           .toString()
-          .padStart(2, '0')}-${slotDate
+          .padStart(2, "0")}-${slotDate
           .getUTCDate()
           .toString()
-          .padStart(2, '0')}`;
+          .padStart(2, "0")}`;
         availability[formattedDate] = true;
       });
       //   console.log(availability);
