@@ -558,19 +558,18 @@ class CalendarController {
   }
 
   static async displayAllTimeSlots(req, res) {
-    const requestDate = new Date(req.params.date);
+    const requestDate = new Date(req.body.navigationDate);
     const year = requestDate.getFullYear();
     const month = requestDate.getMonth();
 
     try {
-      // Retrieve all slots within the month and convert directly to an array
-      const slots = await CalendarDAO.getSlotsByMonth(year, month);
-
-      // Get the number of days in the month
-
-      return res.status(200).json(slots); // Return the availability data or send it via res.json(daysAvailability)
+      const slotsAvailability = await CalendarDAO.getSlotsByMonth(
+        year,
+        month
+      );
+      res.status(200).json(slotsAvailability);
     } catch (error) {
-      console.error('Error getting time slots for month', error);
+      console.error('Error getting time slots for month:', error);
       res.status(500).send('Error processing request');
     }
   }

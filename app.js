@@ -30,8 +30,8 @@ app.get(
   CalendarController.getEventsByDate
 );
 
-app.get(
-  '/calendar/get-month-appointments/:date',
+app.post(
+  '/calendar/get-month-appointments',
   CalendarController.displayAllTimeSlots
 );
 

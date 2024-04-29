@@ -20,40 +20,46 @@ module.exports = class CalendarDAO {
   }
 
   static async getSlotsByMonth(year, month) {
-    const startDate = new Date(Date.UTC(year, month, 1)); // first day of the month
-    const endDate = new Date(Date.UTC(year, month + 1, 1)); // first day of the next month
+    const startDate = new Date(Date.UTC(year, month, 1, 0, 0, 0));
+    const endDate = new Date(Date.UTC(year, month + 1, 1, 0, 0, 0));
 
     try {
-      const cursor = await TimeSlots.find({
+      const query = {
         startTime: {
           $gte: startDate,
           $lt: endDate,
         },
-      }).sort({ startTime: 1 });
+      };
+      const cursor = await TimeSlots.find(query);
+      const slots = await cursor.toArray();
 
-      // Initialize daysAvailability with all false values
-      const daysInMonth = new Date(year, month + 1, 0).getDate(); // Get number of days in the month
-      const daysAvailability = {};
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const availability = {};
+
+      // Initialize all days as false
       for (let day = 1; day <= daysInMonth; day++) {
         const formattedDate = `${year}-${(month + 1)
           .toString()
           .padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-        daysAvailability[formattedDate] = false; // Initially set all days to false
+        availability[formattedDate] = false;
       }
 
-      // Set days to true where time slots are available
-      await cursor.forEach((slot) => {
-        const date = new Date(slot.startTime);
-        const day = date.getUTCDate();
-        const formattedDate = `${date.getUTCFullYear()}-${(
-          date.getUTCMonth() + 1
+      // Set true for days with available slots
+      slots.forEach((slot) => {
+        const slotDate = new Date(slot.startTime);
+        const formattedDate = `${slotDate.getUTCFullYear()}-${(
+          slotDate.getUTCMonth() + 1
         )
           .toString()
-          .padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-        daysAvailability[formattedDate] = true;
+          .padStart(2, '0')}-${slotDate
+          .getUTCDate()
+          .toString()
+          .padStart(2, '0')}`;
+        availability[formattedDate] = true;
       });
+      //   console.log(availability);
 
-      return daysAvailability;
+      return availability;
     } catch (err) {
       console.error(`Error retrieving time slots for month: ${err}`);
       return {};
