@@ -32,7 +32,7 @@ app.get(
 
 app.get(
   '/calendar/get-month-appointments/:date',
-  CalendarController.getEventsByMonth
+  CalendarController.displayAllTimeSlots
 );
 
 app.get(

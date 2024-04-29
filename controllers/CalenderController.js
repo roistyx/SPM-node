@@ -525,7 +525,7 @@ class CalendarController {
 
   static getAllEvents(req, res) {}
 
-  static getEventsByMonth(req, res) {
+  static getEventsByMonth_temp(req, res) {
     console.log('Getting slots for the month...');
     try {
       const requestDate = new Date(req.params.date);
@@ -553,6 +553,24 @@ class CalendarController {
       console.log(filteredSlots);
       return res.status(200).json({ filteredSlots });
     } catch (error) {
+      res.status(500).send('Error processing request');
+    }
+  }
+
+  static async displayAllTimeSlots(req, res) {
+    const requestDate = new Date(req.params.date);
+    const year = requestDate.getFullYear();
+    const month = requestDate.getMonth();
+
+    try {
+      // Retrieve all slots within the month and convert directly to an array
+      const slots = await CalendarDAO.getSlotsByMonth(year, month);
+
+      // Get the number of days in the month
+
+      return res.status(200).json(slots); // Return the availability data or send it via res.json(daysAvailability)
+    } catch (error) {
+      console.error('Error getting time slots for month', error);
       res.status(500).send('Error processing request');
     }
   }
