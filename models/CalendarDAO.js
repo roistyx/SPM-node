@@ -1,6 +1,6 @@
 // injectDB injects this connection to the database
-const { response } = require("express");
-const { ObjectId } = require("mongodb");
+const { response } = require('express');
+const { ObjectId } = require('mongodb');
 
 let TimeSlots;
 
@@ -9,9 +9,9 @@ module.exports = class CalendarDAO {
     if (!connection) return;
 
     try {
-      TimeSlots = await connection.collection("TimeSlots");
+      TimeSlots = await connection.collection('TimeSlots');
 
-      console.log("Connected to MongoDB TimeSlots collection");
+      console.log('Connected to MongoDB TimeSlots collection');
     } catch (err) {
       console.log(
         `Unable to establish a collection handle in CalendarDAO: ${err}`
@@ -20,8 +20,13 @@ module.exports = class CalendarDAO {
   }
 
   static async getSlotsByMonth(year, month) {
+    // Start date 15 days before the start of the month
     const startDate = new Date(Date.UTC(year, month, 1, 0, 0, 0));
-    const endDate = new Date(Date.UTC(year, month + 1, 1, 0, 0, 0));
+    startDate.setDate(startDate.getDate() - 15);
+
+    // End date 15 days after the end of the month
+    const endDate = new Date(Date.UTC(year, month + 1, 0, 0, 0, 0));
+    endDate.setDate(endDate.getDate() + 15);
 
     try {
       const query = {
@@ -33,33 +38,7 @@ module.exports = class CalendarDAO {
       const cursor = await TimeSlots.find(query);
       const slots = await cursor.toArray();
 
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      const availability = {};
-
-      // Initialize all days as false
-      for (let day = 1; day <= daysInMonth; day++) {
-        const formattedDate = `${year}-${(month + 1)
-          .toString()
-          .padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
-        availability[formattedDate] = false;
-      }
-
-      // Set true for days with available slots
-      slots.forEach((slot) => {
-        const slotDate = new Date(slot.startTime);
-        const formattedDate = `${slotDate.getUTCFullYear()}-${(
-          slotDate.getUTCMonth() + 1
-        )
-          .toString()
-          .padStart(2, "0")}-${slotDate
-          .getUTCDate()
-          .toString()
-          .padStart(2, "0")}`;
-        availability[formattedDate] = true;
-      });
-      //   console.log(availability);
-
-      return availability;
+      return slots;
     } catch (err) {
       console.error(`Error retrieving time slots for month: ${err}`);
       return {};
