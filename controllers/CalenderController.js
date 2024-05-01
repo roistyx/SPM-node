@@ -523,24 +523,29 @@ class CalendarController {
     const year = requestDate.getFullYear();
     const month = requestDate.getMonth();
 
-    function convertToUserTime(slots) {
-      return slots.map((slot) => {
-        const userStartTime = moment(slot.startTime).tz(userTimeZone).format();
-        const userEndTime = moment(slot.endTime).tz(userTimeZone).format();
+    function convertToUserTime(dates) {
+      return dates.map((date) => {
+        const userStartTime = moment(date.startTime).tz(userTimeZone).format();
+        const userEndTime = moment(date.endTime).tz(userTimeZone).format();
 
         return {
-          ...slot,
+          ...date,
           startTime: userStartTime,
           endTime: userEndTime,
         };
       });
     }
-    function createAvailableDatesObj(updatedSlots) {
+    function createAvailableDatesObj(updatedDates) {
+      const now = moment().tz(userTimeZone); // Get the current time in the user's timezone
       const availableDatesObj = {}; // Use an object to store dates
 
-      updatedSlots.forEach((slot) => {
-        const date = moment(slot.startTime).format("YYYY-MM-DD"); // Extract the date part
-        availableDatesObj[date] = true; // Set the date as a key in the object with the value true
+      updatedDates.forEach((date) => {
+        const newStartTime = moment(date.startTime);
+        if (newStartTime.isAfter(now, "day")) {
+          // Only include slots that are in the future
+          const formattedDate = newStartTime.format("YYYY-MM-DD"); // Extract the date part
+          availableDatesObj[formattedDate] = true; // Set the date as a key in the object with the value true
+        }
       });
 
       return availableDatesObj;
