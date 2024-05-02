@@ -1,6 +1,6 @@
 // injectDB injects this connection to the database
-const { response } = require("express");
-const { ObjectId } = require("mongodb");
+const { response } = require('express');
+const { ObjectId } = require('mongodb');
 
 let TimeSlots;
 
@@ -9,9 +9,9 @@ module.exports = class CalendarDAO {
     if (!connection) return;
 
     try {
-      TimeSlots = await connection.collection("TimeSlots");
+      TimeSlots = await connection.collection('TimeSlots');
 
-      console.log("Connected to MongoDB TimeSlots collection");
+      console.log('Connected to MongoDB TimeSlots collection');
     } catch (err) {
       console.log(
         `Unable to establish a collection handle in CalendarDAO: ${err}`
@@ -35,7 +35,7 @@ module.exports = class CalendarDAO {
       };
       const cursor = await TimeSlots.find(query);
       const dates = await cursor.toArray();
-
+      console.log('dates', dates);
       return dates;
     } catch (err) {
       console.error(`Error retrieving time slots for month: ${err}`);
@@ -43,6 +43,34 @@ module.exports = class CalendarDAO {
     }
   }
 
+  static async findSlotsByDate(date) {
+    console.log('date', date);
+
+    try {
+      // Create a new Date object for the start of the given date
+      const startOfDay = new Date(date);
+      startOfDay.setUTCHours(0, 0, 0, 0);
+
+      // Create a new Date object for the end of the given date
+      const endOfDay = new Date(date);
+      endOfDay.setUTCHours(23, 59, 59, 999);
+
+      // Query the database for time slots within the specified date range
+      const query = {
+        startTime: {
+          $gte: startOfDay,
+          $lt: endOfDay,
+        },
+      };
+
+      // Execute the query and convert the result to an array
+      const slots = await TimeSlots.find(query).toArray();
+      return slots;
+    } catch (err) {
+      console.error(`Error retrieving time slots by date: ${err}`);
+      return [];
+    }
+  }
   static async addSlot(slots) {
     // console.log('addSlot', slots);
     try {
