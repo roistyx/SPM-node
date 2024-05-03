@@ -1,6 +1,7 @@
 // injectDB injects this connection to the database
 const { response } = require('express');
 const { ObjectId } = require('mongodb');
+const { DateTime } = require('luxon');
 
 let TimeSlots;
 
@@ -43,34 +44,55 @@ module.exports = class CalendarDAO {
     }
   }
 
-  static async findSlotsByDate(date) {
-    console.log('date', date);
-
+  static async findSlotsByDate(requestDate, userTimeZone) {
     try {
-      // Create a new Date object for the start of the given date
-      const startOfDay = new Date(date);
-      startOfDay.setUTCHours(0, 0, 0, 0);
+      // Convert the request date from UTC to the user's timezone to determine the correct day
+      const localStartOfDay = DateTime.fromISO(requestDate, {
+        zone: 'utc',
+      })
+        .setZone(userTimeZone)
+        .startOf('day');
 
-      // Create a new Date object for the end of the given date
-      const endOfDay = new Date(date);
-      endOfDay.setUTCHours(23, 59, 59, 999);
+      const localEndOfDay = localStartOfDay
+        .plus({ days: 1 })
+        .minus({ seconds: 1 });
 
-      // Query the database for time slots within the specified date range
+      // Convert these local times back to UTC for the database query
+      const utcStartOfDay = localStartOfDay.toUTC();
+      const utcEndOfDay = localEndOfDay.toUTC();
+
+      // Create the query using UTC times
       const query = {
         startTime: {
-          $gte: startOfDay,
-          $lt: endOfDay,
+          $gte: utcStartOfDay.toJSDate(),
+          $lt: utcEndOfDay.toJSDate(),
         },
       };
 
-      // Execute the query and convert the result to an array
+      // Perform the query
       const slots = await TimeSlots.find(query).toArray();
+
+      // Adjust the slot times for display in the user's local timezone
+      const adjustedSlots = slots.map((slot) => ({
+        ...slot,
+        startTime: DateTime.fromJSDate(slot.startTime, {
+          zone: 'utc',
+        })
+          .setZone(userTimeZone)
+          .toString(),
+        endTime: DateTime.fromJSDate(slot.endTime, { zone: 'utc' })
+          .setZone(userTimeZone)
+          .toString(),
+      }));
+
+      console.log('slots:', slots);
       return slots;
     } catch (err) {
       console.error(`Error retrieving time slots by date: ${err}`);
       return [];
     }
   }
+
   static async addSlot(slots) {
     // console.log('addSlot', slots);
     try {

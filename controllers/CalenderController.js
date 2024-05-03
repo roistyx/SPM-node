@@ -116,9 +116,11 @@ class CalendarController {
     const userTimeZone = req.body.timeZone; // E.g., America/New_York
 
     const requestDate = new Date(req.body.navigationDate);
+    console.log('requestDate', requestDate);
     try {
       const slotsByDate = await CalendarDAO.findSlotsByDate(
-        requestDate
+        requestDate,
+        userTimeZone
       );
       const slotsConverted = slotsByDate.map((slot) => ({
         ...slot,
@@ -171,14 +173,14 @@ class CalendarController {
             NewYorkTime: slot.NewYorkTime,
           });
         });
-
+        // console.log(slotsByDate);
         return slotsListByDate;
       }
 
       const organizedSlots = organizeSlots(slotsConverted);
-      console.log(organizedSlots);
+      // console.log(organizedSlots);
 
-      return res.status(200).json(slotsByDate);
+      return res.status(200).json(organizedSlots);
     } catch (error) {
       console.error('Error getting time slots for date:', error);
       res.status(500).send('Error processing request');
