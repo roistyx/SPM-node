@@ -1,4 +1,4 @@
-const moment = require('moment');
+const moment = require("moment");
 
 function validateIso8601Date(req, res, next) {
   const requestDateInUtcDateTime = req.body.requestDateInUtcDateTime;
@@ -6,7 +6,7 @@ function validateIso8601Date(req, res, next) {
   if (!requestDateInUtcDateTime) {
     return res
       .status(400)
-      .json({ error: 'requestDateInUtcDateTime is required' });
+      .json({ error: "requestDateInUtcDateTime is required" });
   }
 
   // Check if the date is in the correct ISO 8601 format
@@ -19,10 +19,10 @@ function validateIso8601Date(req, res, next) {
   if (!isValidDate) {
     return res.status(400).json({
       error:
-        'requestDateInUtcDateTime must be in the format YYYY-MM-DDTHH:mm:ss.sssZ',
+        "requestDateInUtcDateTime must be in the format YYYY-MM-DDTHH:mm:ss.sssZ",
     });
   }
-  console.log('validateIso8601Date:', requestDateInUtcDateTime);
+  // console.log('validateIso8601Date:', requestDateInUtcDateTime);
 
   next();
 }

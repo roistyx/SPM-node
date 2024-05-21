@@ -21,7 +21,6 @@ module.exports = class CalendarDAO {
   }
 
   static async findAvailableDates(requestDate) {
-    console.log();
     const startDate = new Date(Date.UTC(requestDate, 1, 0, 0, 0));
     startDate.setDate(startDate.getDate() - 15);
 
@@ -44,7 +43,7 @@ module.exports = class CalendarDAO {
   }
 
   static async findSlotsByDate(requestedDate) {
-    console.log("findSlotsByDate", requestedDate);
+    // console.log("findSlotsByDate", requestedDate);
     requestedDate = new Date(requestedDate);
     const nextDay = new Date(requestedDate);
     nextDay.setDate(requestedDate.getDate() + 1);
