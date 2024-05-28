@@ -3,17 +3,48 @@ const moment = require("moment-timezone");
 
 class CalendarController {
   static async addAppointment(req, res) {
-    const form = req.body.currentFormData;
-    const appointment = req.body.selectedAppointmentObject;
-    console.log("form", form);
+    const { startTime, endTime, durationMinutes, overlapMinutes } = req.params;
 
-    // try {
-    //   const response = await CalendarDAO.addSlot(slots);
-    //   console.log(response);
-    //   res.status(200).json(response);
-    // } catch (error) {
-    //   console.error("Error adding time slots", error);
-    // }
+    // console.log(
+    //   `Adding slots from ${UtcStartTime} to ${UtcEndTime} with duration ${durationMinutes} and overlap ${overlapMinutes}`
+    // );
+
+    const UtcStartTime = new Date(startTime);
+    const UtcEndTime = new Date(endTime);
+
+    let slots = [];
+    for (let current = new Date(UtcStartTime); current < UtcEndTime; ) {
+      let slotStart = new Date(current);
+      let slotEnd = new Date(slotStart.getTime() + durationMinutes * 60000);
+
+      const startTimeNY = moment(slotStart)
+        .tz("America/New_York")
+        .format("h:mm A");
+      const endTimeNY = moment(slotEnd).tz("America/New_York").format("h:mm A");
+      const dateNY = moment(slotStart)
+        .tz("America/New_York")
+        .format("MMMM D, YYYY");
+
+      slots.push({
+        startTime: slotStart,
+        endTime: slotEnd,
+        isBooked: false,
+        details: {},
+        NewYorkTime: `${startTimeNY} to ${endTimeNY} on ${dateNY}`,
+      });
+
+      // Move to next start time considering the overlap
+      current = new Date(
+        current.getTime() + (durationMinutes - overlapMinutes) * 60000
+      );
+    }
+    try {
+      const response = await CalendarDAO.addSlot(slots);
+      console.log(response);
+      res.status(200).json(response);
+    } catch (error) {
+      console.error("Error adding time slots", error);
+    }
   }
 
   static removeEvent(req, res) {}

@@ -36,8 +36,10 @@ app.post(
   CalendarController.postDayAppointments
 );
 
-app.post("/calendar/add-appointment", CalendarController.addAppointment);
-
+app.get(
+  "/calendar/add-appointment/:startTime/:endTime/:durationMinutes/:overlapMinutes",
+  CalendarController.addAppointment
+);
 const port = process.env.PORT;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
