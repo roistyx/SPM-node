@@ -1,5 +1,10 @@
 const CalendarDAO = require("../models/CalendarDAO.js");
 const moment = require("moment-timezone");
+require("dotenv").config();
+var addressValidator = require("address-validator");
+var Address = addressValidator.Address;
+var _ = require("underscore");
+const axios = require("axios");
 
 class CalendarController {
   static async addAppointment(req, res) {
@@ -111,6 +116,50 @@ class CalendarController {
   }
 
   static updateEvent(req, res) {}
+
+  static async addressValidation(req, res) {
+    const apiKey = process.env.GOOGLE_API_KEY;
+
+    if (!apiKey) {
+      return res.status(500).json({ error: "Google API key is missing" });
+    }
+
+    const { address } = req.body;
+    console.log(address);
+
+    const geocodingUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+      address
+    )}&key=${apiKey}`;
+
+    try {
+      const response = await axios.get(geocodingUrl);
+      const { data } = response;
+
+      if (data.status === "OK") {
+        const exactMatches = data.results.filter(
+          (result) => result.geometry.location_type === "ROOFTOP"
+        );
+
+        if (exactMatches.length > 0) {
+          return res.status(200).json({ valid: true, address: exactMatches });
+        } else {
+          return res
+            .status(200)
+            .json({ valid: false, suggestions: data.results });
+        }
+      } else {
+        return res.status(400).json({
+          valid: false,
+          error: data.status,
+          message: data.error_message,
+        });
+      }
+    } catch (error) {
+      return res
+        .status(500)
+        .json({ error: "Address validation error", details: error.message });
+    }
+  }
 }
 
 module.exports = CalendarController;

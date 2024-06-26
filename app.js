@@ -40,6 +40,9 @@ app.get(
   "/calendar/add-appointment/:startTime/:endTime/:durationMinutes/:overlapMinutes",
   CalendarController.addAppointment
 );
+
+app.post("/calendar/address-validation", CalendarController.addressValidation);
+
 const port = process.env.PORT;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
