@@ -1,7 +1,7 @@
 // injectDB injects this connection to the database
-const { response } = require("express");
-const { ObjectId } = require("mongodb");
-const { DateTime } = require("luxon");
+const { response } = require('express');
+const { ObjectId } = require('mongodb');
+const { DateTime } = require('luxon');
 
 let TimeSlots;
 
@@ -10,9 +10,9 @@ module.exports = class CalendarDAO {
     if (!connection) return;
 
     try {
-      TimeSlots = await connection.collection("TimeSlots");
+      TimeSlots = await connection.collection('TimeSlots');
 
-      console.log("Connected to MongoDB TimeSlots collection");
+      console.log('Connected to MongoDB TimeSlots collection');
     } catch (err) {
       console.log(
         `Unable to establish a collection handle in CalendarDAO: ${err}`
@@ -73,6 +73,19 @@ module.exports = class CalendarDAO {
       return { success: true };
     } catch (e) {
       console.error(`Unable to post slot: ${e}`);
+      return { error: e };
+    }
+  }
+
+  static async updateSlot(slot) {
+    try {
+      const updateResponse = await TimeSlots.updateOne(
+        { _id: ObjectId(slot._id) },
+        { $set: { isBooked: slot.isBooked } }
+      );
+      return updateResponse;
+    } catch (e) {
+      console.error(`Unable to update slot: ${e}`);
       return { error: e };
     }
   }
