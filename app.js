@@ -6,6 +6,8 @@ const CalendarController = require('./controllers/CalenderController.js');
 const {
   validateIso8601Date,
 } = require('./middlewares/validateRequestDateInUtcDateTime.js');
+const validateAndSanitizeFormData = require('./middlewares/validateAndSanitizeFormData.js');
+
 const { InitDBAtlas } = require('./models/initAtlas.js');
 const bodyParser = require('body-parser');
 
@@ -38,6 +40,7 @@ app.post(
 
 app.post(
   '/calendar/submit-appointment',
+  validateAndSanitizeFormData,
   CalendarController.userSubmitAppointment
 );
 
