@@ -55,8 +55,18 @@ class CalendarController {
     }
   }
 
-  static userSubmitAppointment(req, res) {
-    console.log('User submitted appointment', req.body);
+  static async userSubmitAppointment(req, res) {
+    const { currentFormData, selectedAppointmentObject } = req.body;
+
+    try {
+      const isBookedResponse = await CalendarDAO.updateSlot(
+        selectedAppointmentObject._id
+      );
+      console.log('isBookedResponse', isBookedResponse);
+      res.status(200).json(isBookedResponse);
+    } catch (error) {
+      console.error('Error updating time slot', error);
+    }
   }
 
   static removeEvent(req, res) {}

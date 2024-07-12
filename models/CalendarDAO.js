@@ -1,7 +1,5 @@
 // injectDB injects this connection to the database
-const { response } = require('express');
 const { ObjectId } = require('mongodb');
-const { DateTime } = require('luxon');
 
 let TimeSlots;
 
@@ -77,16 +75,36 @@ module.exports = class CalendarDAO {
     }
   }
 
-  static async updateSlot(slot) {
+  static async updateSlot(slotId) {
     try {
+      // Check if the slot is already booked
+      const slot = await TimeSlots.findOne({
+        _id: new ObjectId(slotId),
+      });
+
+      if (!slot) {
+        return {
+          status: false,
+          message: 'Slot not found',
+        };
+      }
+
+      if (slot.isBooked) {
+        console.log('Slot is already booked');
+        return { status: false, message: 'Slot is already booked' };
+      }
+
+      // Update the slot to set isBooked to true
       const updateResponse = await TimeSlots.updateOne(
-        { _id: ObjectId(slot._id) },
-        { $set: { isBooked: slot.isBooked } }
+        { _id: new ObjectId(slotId) },
+        { $set: { isBooked: true } }
       );
-      return updateResponse;
+
+      if (updateResponse.acknowledged)
+        return { status: true, message: 'Slot has been booked' };
     } catch (e) {
       console.error(`Unable to update slot: ${e}`);
-      return { error: e };
+      return { error: e.message };
     }
   }
 };
