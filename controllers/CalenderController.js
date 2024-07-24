@@ -10,9 +10,7 @@ class CalendarController {
   static async addAppointment(req, res) {
     const { startTime, endTime, durationMinutes, overlapMinutes } =
       req.params;
-    // console.log(
-    //   `Adding slots from ${UtcStartTime} to ${UtcEndTime} with duration ${durationMinutes} and overlap ${overlapMinutes}`
-    // );
+    console.log(startTime, endTime, durationMinutes, overlapMinutes);
     const UtcStartTime = new Date(startTime);
     const UtcEndTime = new Date(endTime);
     let slots = [];
@@ -60,9 +58,15 @@ class CalendarController {
 
     try {
       const isBookedResponse = await CalendarDAO.updateSlot(
-        selectedAppointmentObject._id
+        selectedAppointmentObject._id,
+        currentFormData
       );
-      console.log('isBookedResponse', isBookedResponse);
+      // console.log('isBookedResponse', isBookedResponse);
+      const decryptedObjectValues =
+        await CalendarDAO.getDecryptedSlot(
+          selectedAppointmentObject._id
+        );
+      console.log('decryptedObjectValues', decryptedObjectValues);
       res.status(200).json(isBookedResponse);
     } catch (error) {
       console.error('Error updating time slot', error);
