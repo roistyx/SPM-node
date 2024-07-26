@@ -66,8 +66,14 @@ class CalendarController {
         await CalendarDAO.getDecryptedSlot(
           selectedAppointmentObject._id
         );
-      console.log('decryptedObjectValues', decryptedObjectValues);
-      res.status(200).json(isBookedResponse);
+      const sanitizedResponse = {
+        isBooked: isBookedResponse.isBooked,
+        startTime: decryptedObjectValues.startTime,
+        endTime: decryptedObjectValues.endTime,
+        firstName: decryptedObjectValues.details.firstName,
+      };
+      isBookedResponse.data = sanitizedResponse;
+      res.status(200).json(isBookedResponse.data);
     } catch (error) {
       console.error('Error updating time slot', error);
     }

@@ -6,15 +6,19 @@ const validateAndSanitizeFormData = [
     .trim()
     .notEmpty()
     .withMessage('First name is required')
-    .isAlpha()
-    .withMessage('First name must contain only letters')
+    .matches(/^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]+$/)
+    .withMessage(
+      'First name must contain only letters, spaces, hyphens, and accents'
+    )
     .escape(),
   body('currentFormData.lastName')
     .trim()
     .notEmpty()
     .withMessage('Last name is required')
-    .isAlpha()
-    .withMessage('Last name must contain only letters')
+    .matches(/^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]+$/)
+    .withMessage(
+      'Last name must contain only letters, spaces, hyphens, and accents'
+    )
     .escape(),
   body('currentFormData.address')
     .trim()
