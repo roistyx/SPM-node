@@ -67,15 +67,28 @@ class CalendarController {
           selectedAppointmentObject._id
         );
       const sanitizedResponse = {
-        isBooked: isBookedResponse.isBooked,
+        isBooked: isBookedResponse.status,
         startTime: decryptedObjectValues.startTime,
         endTime: decryptedObjectValues.endTime,
         firstName: decryptedObjectValues.details.firstName,
       };
+      // console.log('isBookedResponse', isBookedResponse);
       isBookedResponse.data = sanitizedResponse;
       res.status(200).json(isBookedResponse.data);
     } catch (error) {
       console.error('Error updating time slot', error);
+    }
+  }
+
+  static async getSlot(req, res) {
+    const { slotId } = req.params;
+    console.log('Slot ID:', slotId);
+    try {
+      const decryptedObjectValues =
+        await CalendarDAO.getDecryptedSlot(slotId);
+      res.status(200).json(decryptedObjectValues);
+    } catch (error) {
+      console.error('Error getting decrypted slot', error);
     }
   }
 

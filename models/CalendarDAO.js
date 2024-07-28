@@ -157,7 +157,12 @@ module.exports = class CalendarDAO {
       const slot = await TimeSlots.findOne({
         _id: new ObjectId(slotId),
       });
-
+      if (!slot.isBooked) {
+        return {
+          status: false,
+          message: 'Slot is not booked',
+        };
+      }
       if (!slot) {
         return {
           status: false,

@@ -44,6 +44,8 @@ app.post(
   CalendarController.userSubmitAppointment
 );
 
+app.get('/calendar/get-slot/:slotId', CalendarController.getSlot);
+
 app.get(
   '/calendar/add-appointment/:startTime/:endTime/:durationMinutes/:overlapMinutes',
   CalendarController.addAppointment
