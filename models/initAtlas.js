@@ -24,6 +24,7 @@ module.exports.InitDBAtlas = async function initDBAtlas() {
 
     // Inject the DB connection to the DAOs
     await CalendarDAO.injectDB(client.db(process.env.DB));
+    return;
   } catch (error) {
     console.error('Error initializing database connection', error);
   }

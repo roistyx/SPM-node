@@ -22,7 +22,6 @@ app.use(
 InitDBAtlas();
 
 app.use(express.static(path.join(__dirname, 'public')));
-// app.use(express.static('public'));
 
 app.use(express.json());
 app.use(express.static('public'));
@@ -44,12 +43,12 @@ app.post(
   CalendarController.userSubmitAppointment
 );
 
-app.get('/calendar/get-slot/:slotId', CalendarController.getSlot);
+// app.get('/calendar/get-slot/:slotId', CalendarController.getSlot);
 
-app.get(
-  '/calendar/add-appointment/:startTime/:endTime/:durationMinutes/:overlapMinutes',
-  CalendarController.addAppointment
-);
+// app.get(
+//   '/calendar/add-appointment/:startTime/:endTime/:durationMinutes/:overlapMinutes',
+//   CalendarController.addAppointment
+// );
 
 app.post(
   '/calendar/address-validation',

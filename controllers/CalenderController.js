@@ -7,9 +7,12 @@ var _ = require('underscore');
 const axios = require('axios');
 
 class CalendarController {
-  static async addAppointment(req, res) {
-    const { startTime, endTime, durationMinutes, overlapMinutes } =
-      req.params;
+  static async addAppointment(
+    startTime,
+    endTime,
+    durationMinutes,
+    overlapMinutes
+  ) {
     console.log(startTime, endTime, durationMinutes, overlapMinutes);
     const UtcStartTime = new Date(startTime);
     const UtcEndTime = new Date(endTime);
@@ -77,6 +80,18 @@ class CalendarController {
       res.status(200).json(isBookedResponse.data);
     } catch (error) {
       console.error('Error updating time slot', error);
+    }
+  }
+
+  static async getSlot(slotId) {
+    console.log('Slot ID:', slotId);
+    try {
+      const decryptedObjectValues =
+        await CalendarDAO.getDecryptedSlot(slotId);
+      return decryptedObjectValues;
+    } catch (error) {
+      console.error('Error getting decrypted slot', error);
+      throw error; // Make sure to rethrow the error if you want to catch it in the caller
     }
   }
 
