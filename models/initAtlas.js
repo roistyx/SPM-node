@@ -2,6 +2,11 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
 
 const CalendarDAO = require('./CalendarDAO.js');
 const uri = process.env.ATLAS_URI;
+console.log('uri', uri);
+if (!uri) {
+  console.error('ATLAS_URI is missing from the .env file');
+  process.exit(1);
+}
 
 module.exports.InitDBAtlas = async function initDBAtlas() {
   console.log(uri);

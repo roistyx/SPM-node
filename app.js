@@ -15,7 +15,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(
   cors({
-    origin: 'http://localhost:3000',
+    origin: process.env.CLIENT_URL,
     credentials: true,
   })
 );
@@ -42,13 +42,6 @@ app.post(
   validateAndSanitizeFormData,
   CalendarController.userSubmitAppointment
 );
-
-// app.get('/calendar/get-slot/:slotId', CalendarController.getSlot);
-
-// app.get(
-//   '/calendar/add-appointment/:startTime/:endTime/:durationMinutes/:overlapMinutes',
-//   CalendarController.addAppointment
-// );
 
 app.post(
   '/calendar/address-validation',

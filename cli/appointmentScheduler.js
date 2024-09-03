@@ -3,6 +3,8 @@ const readline = require('readline');
 const { MongoClient } = require('mongodb');
 const moment = require('moment-timezone');
 
+//node cli/appointmentScheduler.js
+
 const uri = process.env.ATLAS_URI;
 if (!uri) {
   throw new Error('Missing ATLAS_URI environment variable');
