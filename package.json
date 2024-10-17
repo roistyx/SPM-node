@@ -1,5 +1,16 @@
 {
+  "name": "SPM-Node",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "appointmentScheduler": "node cli/appointmentScheduler.js",
+    "getSlot": "node cli/getSlot.js"
+  },
   "author": "",
+  "license": "ISC",
   "dependencies": {
     "address-validator": "^0.2.3",
     "axios": "^1.7.2",
@@ -15,12 +26,10 @@
     "i": "^0.3.7",
     "jimp": "^0.22.10",
     "luxon": "^3.4.4",
-    "main": "/app.js",
     "marked": "^10.0.0",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.45",
     "mongodb": "^5.9.2",
-    "nodemon": "^2.0.22",
     "npm": "^10.6.0",
     "openai": "^3.3.0",
     "path": "^0.12.7",
@@ -32,14 +41,7 @@
     "yahoo-finance": "^0.3.8",
     "yahoo-finance2": "^2.4.3"
   },
-  "description": "",
-  "license": "ISC",
-  "main": "/app.js",
-  "name": "SPM-Node",
-  "scripts": {
-    "appointmentScheduler": "node cli/appointmentScheduler.js",
-    "dev": "nodemon app.js",
-    "getSlot": "node cli/getSlot.js"
-  },
-  "version": "1.0.0"
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
 }

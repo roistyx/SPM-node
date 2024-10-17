@@ -1,10 +1,10 @@
-const CalendarDAO = require('../models/CalendarDAO.js');
-const moment = require('moment-timezone');
-require('dotenv').config();
-var addressValidator = require('address-validator');
+const CalendarDAO = require("../models/CalendarDAO.js");
+const moment = require("moment-timezone");
+require("dotenv").config();
+var addressValidator = require("address-validator");
 var Address = addressValidator.Address;
-var _ = require('underscore');
-const axios = require('axios');
+var _ = require("underscore");
+const axios = require("axios");
 
 class CalendarController {
   static async addAppointment(
@@ -17,24 +17,16 @@ class CalendarController {
     const UtcStartTime = new Date(startTime);
     const UtcEndTime = new Date(endTime);
     let slots = [];
-    for (
-      let current = new Date(UtcStartTime);
-      current < UtcEndTime;
-
-    ) {
+    for (let current = new Date(UtcStartTime); current < UtcEndTime; ) {
       let slotStart = new Date(current);
-      let slotEnd = new Date(
-        slotStart.getTime() + durationMinutes * 60000
-      );
+      let slotEnd = new Date(slotStart.getTime() + durationMinutes * 60000);
       const startTimeNY = moment(slotStart)
-        .tz('America/New_York')
-        .format('h:mm A');
-      const endTimeNY = moment(slotEnd)
-        .tz('America/New_York')
-        .format('h:mm A');
+        .tz("America/New_York")
+        .format("h:mm A");
+      const endTimeNY = moment(slotEnd).tz("America/New_York").format("h:mm A");
       const dateNY = moment(slotStart)
-        .tz('America/New_York')
-        .format('MMMM D, YYYY');
+        .tz("America/New_York")
+        .format("MMMM D, YYYY");
       slots.push({
         startTime: slotStart,
         endTime: slotEnd,
@@ -52,7 +44,7 @@ class CalendarController {
       console.log(response);
       res.status(200).json(response);
     } catch (error) {
-      console.error('Error adding time slots', error);
+      console.error("Error adding time slots", error);
     }
   }
 
@@ -65,10 +57,9 @@ class CalendarController {
         currentFormData
       );
       // console.log('isBookedResponse', isBookedResponse);
-      const decryptedObjectValues =
-        await CalendarDAO.getDecryptedSlot(
-          selectedAppointmentObject._id
-        );
+      const decryptedObjectValues = await CalendarDAO.getDecryptedSlot(
+        selectedAppointmentObject._id
+      );
       const sanitizedResponse = {
         isBooked: isBookedResponse.status,
         startTime: decryptedObjectValues.startTime,
@@ -79,31 +70,29 @@ class CalendarController {
       isBookedResponse.data = sanitizedResponse;
       res.status(200).json(isBookedResponse.data);
     } catch (error) {
-      console.error('Error updating time slot', error);
+      console.error("Error updating time slot", error);
     }
   }
 
   static async getSlot(slotId) {
-    console.log('Slot ID:', slotId);
+    console.log("Slot ID:", slotId);
     try {
-      const decryptedObjectValues =
-        await CalendarDAO.getDecryptedSlot(slotId);
+      const decryptedObjectValues = await CalendarDAO.getDecryptedSlot(slotId);
       return decryptedObjectValues;
     } catch (error) {
-      console.error('Error getting decrypted slot', error);
+      console.error("Error getting decrypted slot", error);
       throw error; // Make sure to rethrow the error if you want to catch it in the caller
     }
   }
 
   static async getSlot(req, res) {
     const { slotId } = req.params;
-    console.log('Slot ID:', slotId);
+    console.log("Slot ID:", slotId);
     try {
-      const decryptedObjectValues =
-        await CalendarDAO.getDecryptedSlot(slotId);
+      const decryptedObjectValues = await CalendarDAO.getDecryptedSlot(slotId);
       res.status(200).json(decryptedObjectValues);
     } catch (error) {
-      console.error('Error getting decrypted slot', error);
+      console.error("Error getting decrypted slot", error);
     }
   }
 
@@ -112,6 +101,7 @@ class CalendarController {
   static getAllEvents(req, res) {}
 
   static async postAvailableDates(req, res) {
+    console.log("Request body navigationDate:", req.body);
     const requestDate = new Date(req.body.navigationDate);
     const userTimeZone = req.body.timeZone;
     ``;
@@ -120,12 +110,8 @@ class CalendarController {
 
     function convertToUserTime(dates) {
       return dates.map((date) => {
-        const userStartTime = moment(date.startTime)
-          .tz(userTimeZone)
-          .format();
-        const userEndTime = moment(date.endTime)
-          .tz(userTimeZone)
-          .format();
+        const userStartTime = moment(date.startTime).tz(userTimeZone).format();
+        const userEndTime = moment(date.endTime).tz(userTimeZone).format();
 
         return {
           ...date,
@@ -140,9 +126,9 @@ class CalendarController {
 
       updatedDates.forEach((date) => {
         const newStartTime = moment(date.startTime);
-        if (newStartTime.isAfter(now, 'day')) {
+        if (newStartTime.isAfter(now, "day")) {
           // Only include slots that are in the future
-          const formattedDate = newStartTime.format('YYYY-MM-DD'); // Extract the date part
+          const formattedDate = newStartTime.format("YYYY-MM-DD"); // Extract the date part
           availableDatesObj[formattedDate] = true; // Set the date as a key in the object with the value true
         }
       });
@@ -154,27 +140,23 @@ class CalendarController {
       const dates = await CalendarDAO.findAvailableDates(year, month);
       const updatedDates = convertToUserTime(dates);
 
-      return res
-        .status(200)
-        .json(createAvailableDatesObj(updatedDates));
+      return res.status(200).json(createAvailableDatesObj(updatedDates));
     } catch (error) {
-      console.error('Error getting time slots for month:', error);
-      res.status(500).send('Error processing request');
+      console.error("Error getting time slots for month:", error);
+      res.status(500).send("Error processing request");
     }
   }
 
   static async postDayAppointments(req, res) {
     const requestDate = req.body.requestDateInUtcDateTime;
-    console.log('Request date:', requestDate);
+    console.log("Request date:", requestDate);
     try {
-      const slotsByDate = await CalendarDAO.findSlotsByDate(
-        requestDate
-      );
+      const slotsByDate = await CalendarDAO.findSlotsByDate(requestDate);
 
       return res.status(200).json(slotsByDate);
     } catch (error) {
-      console.error('Error getting time slots for date:', error);
-      res.status(500).send('Error processing request');
+      console.error("Error getting time slots for date:", error);
+      res.status(500).send("Error processing request");
     }
   }
 
@@ -184,9 +166,7 @@ class CalendarController {
     const apiKey = process.env.GOOGLE_API_KEY;
 
     if (!apiKey) {
-      return res
-        .status(500)
-        .json({ error: 'Google API key is missing' });
+      return res.status(500).json({ error: "Google API key is missing" });
     }
 
     const { address } = req.body;
@@ -200,15 +180,13 @@ class CalendarController {
       const response = await axios.get(geocodingUrl);
       const { data } = response;
 
-      if (data.status === 'OK') {
+      if (data.status === "OK") {
         const exactMatches = data.results.filter(
-          (result) => result.geometry.location_type === 'ROOFTOP'
+          (result) => result.geometry.location_type === "ROOFTOP"
         );
 
         if (exactMatches.length > 0) {
-          return res
-            .status(200)
-            .json({ valid: true, address: exactMatches });
+          return res.status(200).json({ valid: true, address: exactMatches });
         } else {
           return res
             .status(200)
@@ -223,7 +201,7 @@ class CalendarController {
       }
     } catch (error) {
       return res.status(500).json({
-        error: 'Address validation error',
+        error: "Address validation error",
         details: error.message,
       });
     }
